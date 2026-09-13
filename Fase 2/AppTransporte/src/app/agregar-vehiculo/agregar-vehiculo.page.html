@@ -1,0 +1,68 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Agregar Vehículo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+<div class="form-card">
+  <ion-item>
+    <ion-label position="floating">Patente</ion-label>
+    <ion-input [(ngModel)]="vehiculo.patente"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Marca</ion-label>
+    <ion-input [(ngModel)]="vehiculo.marca"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Modelo</ion-label>
+    <ion-input [(ngModel)]="vehiculo.modelo"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Año</ion-label>
+    <ion-input type="number" [(ngModel)]="vehiculo.anio"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Próximo kilometraje</ion-label>
+    <ion-input type="number" [(ngModel)]="vehiculo.proximoKilometraje"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Estado DPF</ion-label>
+    <ion-input [(ngModel)]="vehiculo.estadoDpf"></ion-input>
+  </ion-item><br><br>
+
+<ion-item>
+  <ion-label position="stacked">Fecha vencimiento revisión</ion-label>
+  <ion-input
+    type="date"
+    [(ngModel)]="vehiculo.fechaRevisionTecnica"
+    (ionChange)="actualizarEstadoRevision()">
+  </ion-input>
+</ion-item>
+            
+  <ion-item>
+    <ion-select label="Estado extintor" placeholder="Seleccione" [(ngModel)]="vehiculo.estadoExtintor">
+      <ion-select-option value="Vigente">Vigente</ion-select-option>
+        <ion-select-option value="Vencido">Vencido</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Observación</ion-label>
+    <ion-input [(ngModel)]="vehiculo.observacion"></ion-input>
+  </ion-item><br><br>
+
+  <ion-button expand="block" (click)="guardarVehiculo()">
+    Guardar vehículo
+  </ion-button>
+</div>
+
+</ion-content>

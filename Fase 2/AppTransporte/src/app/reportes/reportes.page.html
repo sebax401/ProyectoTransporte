@@ -1,0 +1,144 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle Vehículo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="reportes-page">
+
+  <ion-card class="section-card">
+    <ion-card-header>
+      <ion-card-title>Reportes</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <div *ngIf="reportes.length === 0" class="empty-state">
+        No hay reportes registrados.
+      </div>
+
+      <ion-card class="reporte-card" *ngFor="let reporte of reportes">
+        <ion-card-header>
+          <ion-card-title>{{ reporte.tipoReporte }}</ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <p>{{ reporte.descripcion }}</p>
+          <p><strong>Fecha:</strong> {{ reporte.fechaGeneracion | date:'dd/MM/yyyy' }}</p>
+
+          <p *ngIf="reporte.valorRepuesto === null" class="estado-pendiente">
+            Pendiente de repuesto
+          </p>
+
+          <p *ngIf="reporte.nombreRepuesto">
+            <strong>Repuesto:</strong> {{ reporte.nombreRepuesto }}
+          </p>
+
+          <p *ngIf="reporte.valorRepuesto !== null">
+            <strong>Valor:</strong> ${{ reporte.valorRepuesto }}
+          </p>
+
+          <p *ngIf="reporte.lugarCompra">
+            <strong>Lugar:</strong> {{ reporte.lugarCompra }}
+          </p>
+
+          <ion-button
+            *ngIf="reporte.valorRepuesto === null && repuestoEditando !== reporte.idReporte"
+            expand="block"
+            color="warning"
+            (click)="mostrarFormularioRepuesto(reporte)">
+            Agregar repuesto
+          </ion-button>
+
+          <div *ngIf="repuestoEditando === reporte.idReporte">
+            <ion-item>
+              <ion-label position="stacked">Nombre del repuesto</ion-label>
+              <ion-input [(ngModel)]="repuestoForm.nombreRepuesto"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Valor del repuesto</ion-label>
+              <ion-input type="number" [(ngModel)]="repuestoForm.valorRepuesto"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Lugar de compra</ion-label>
+              <ion-input [(ngModel)]="repuestoForm.lugarCompra"></ion-input>
+            </ion-item>
+
+            <ion-button
+              expand="block"
+              color="success"
+              (click)="guardarRepuesto(reporte)">
+              Guardar repuesto
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="section-card">
+    <ion-accordion-group>
+      <ion-accordion value="first">
+        <ion-item slot="header">
+          <ion-label>Generar Reporte</ion-label>
+        </ion-item>
+
+        <div class="ion-padding" slot="content">
+          <ion-item>
+            <ion-select
+              label="Tipo de Reporte"
+              placeholder="Seleccione"
+              [(ngModel)]="reporte.tipoReporte">
+              <ion-select-option value="falla">Falla</ion-select-option>
+              <ion-select-option value="mantencion">Mantención</ion-select-option>
+              <ion-select-option value="revision">Revisión Técnica</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item *ngIf="reporte.tipoReporte === 'falla'">
+            <ion-select label="Tipo de Falla" placeholder="Seleccione" [(ngModel)]="subTipo">
+              <ion-select-option value="Motor">Motor</ion-select-option>
+              <ion-select-option value="Frenos">Frenos</ion-select-option>
+              <ion-select-option value="Eléctrica">Eléctrica</ion-select-option>
+              <ion-select-option value="Batería">Batería</ion-select-option>
+              <ion-select-option value="Neumáticos">Neumáticos</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item *ngIf="reporte.tipoReporte === 'mantencion'">
+            <ion-select label="Tipo de Mantención" placeholder="Seleccione" [(ngModel)]="subTipo">
+              <ion-select-option value="Cambio de aceite">Cambio de Aceite</ion-select-option>
+              <ion-select-option value="Cambio de filtros">Cambio de Filtros</ion-select-option>
+              <ion-select-option value="Cambio de pastillas">Cambio de Pastillas</ion-select-option>
+              <ion-select-option value="Alineación">Alineación</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item *ngIf="reporte.tipoReporte === 'revision'">
+            <ion-select label="Tipo de Revisión" placeholder="Seleccione" [(ngModel)]="subTipo">
+              <ion-select-option value="Revisión técnica">Revisión Técnica</ion-select-option>
+              <ion-select-option value="Permiso de circulación">Permiso de Circulación</ion-select-option>
+              <ion-select-option value="Seguro">Seguro</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Descripción</ion-label>
+            <ion-input [(ngModel)]="reporte.descripcion"></ion-input>
+          </ion-item>
+
+          <ion-button expand="block" (click)="generarReporte()">
+            Generar reporte
+          </ion-button>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  </ion-card>
+
+</ion-content>

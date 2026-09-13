@@ -1,0 +1,7 @@
+{
+  "name": "AppTransporte",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

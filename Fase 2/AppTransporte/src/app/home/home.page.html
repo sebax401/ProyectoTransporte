@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start" routerLink="/agregar-vehiculo">
+      <ion-icon name="add-circle-outline" color = "primary" size = "large"></ion-icon>
+    </ion-buttons>
+    <ion-title></ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-searchbar animated="true" placeholder="Buscar vehículo..." (ionInput)="handleInput($event)"></ion-searchbar>
+
+
+  <ion-card *ngFor="let vehiculo of results" routerLink="/datos-vehiculo/{{ vehiculo.idVehiculo }}">
+    <ion-icon name="car-outline" size="large" color = "primary"></ion-icon>
+    <ion-card-header>
+      <ion-card-subtitle>{{ vehiculo.modelo }}</ion-card-subtitle>
+      <ion-card-title>{{ vehiculo.patente }}</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <strong>Próximo Km:</strong> {{ vehiculo.proximoKilometraje }} <br>
+      <strong>Estado DPF:</strong> {{ vehiculo.estadoDpf }} <br>
+      <strong>Observación:</strong> {{ vehiculo.observacion }} <br>
+      <strong>Estado de revision:</strong> {{ vehiculo.estadoRevision }}
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>
