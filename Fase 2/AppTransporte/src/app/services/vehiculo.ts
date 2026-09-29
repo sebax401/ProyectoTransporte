@@ -31,7 +31,7 @@ export interface Vehiculo {
 export class VehiculoService {
 
 
-  private apiUrl = 'https://apitransporte.onrender.com/api/Vehiculos';
+  private apiUrl = 'http://localhost:5000/api/Vehiculos';
 
   constructor(private http: HttpClient) {
     console.log('API URL usada:', this.apiUrl);

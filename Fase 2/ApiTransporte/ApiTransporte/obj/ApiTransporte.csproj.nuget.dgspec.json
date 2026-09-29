@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\cabre\\Desktop\\Carpetas\\ProyectoTransporte\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj": {}
+    "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj": {}
   },
   "projects": {
-    "C:\\Users\\cabre\\Desktop\\Carpetas\\ProyectoTransporte\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj": {
+    "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cabre\\Desktop\\Carpetas\\ProyectoTransporte\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj",
+        "projectUniqueName": "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj",
         "projectName": "ApiTransporte",
-        "projectPath": "C:\\Users\\cabre\\Desktop\\Carpetas\\ProyectoTransporte\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj",
+        "projectPath": "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj",
         "packagesPath": "C:\\Users\\cabre\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cabre\\Desktop\\Carpetas\\ProyectoTransporte\\ApiTransporte\\ApiTransporte\\obj\\",
+        "outputPath": "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -104,7 +104,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
