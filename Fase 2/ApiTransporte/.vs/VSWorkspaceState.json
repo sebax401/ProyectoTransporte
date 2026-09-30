@@ -5,6 +5,6 @@
     "\\ApiTransporte\\Controllers",
     "\\ApiTransporte\\Properties"
   ],
-  "SelectedNode": "\\ApiTransporte\\Controllers\\VehiculoController.cs",
+  "SelectedNode": "\\ApiTransporte\\Program.cs",
   "PreviewInSolutionExplorer": false
 }
