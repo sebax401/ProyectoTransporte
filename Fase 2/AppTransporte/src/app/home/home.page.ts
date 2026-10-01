@@ -15,12 +15,13 @@ import { NgFor } from '@angular/common';
 
 import { VehiculoService, Vehiculo } from '../services/vehiculo';
 import { NotificacionService } from '../services/notificacion';
+import { BarralateralComponent } from '../BarraLateral/barralateral.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  imports: [ IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, 
+  imports: [ BarralateralComponent,IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, 
              IonTitle, IonMenuButton, IonButton, IonButtons, IonToolbar, IonHeader, IonSearchbar, RouterLink, NgFor, IonIcon, IonRefresher, IonRefresherContent, IonChip, IonLabel ],
 })
 export class HomePage {
