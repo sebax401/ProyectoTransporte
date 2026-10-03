@@ -12,5 +12,7 @@ namespace ApiTransporte.Data
         public DbSet<Vehiculo> Vehiculo { get; set; }
 
         public DbSet<Reporte> Reporte { get; set; }
+
+        public DbSet<Empleado> Empleado { get; set; }
     }
 }
