@@ -1,0 +1,204 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Empleados</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-card>
+
+    <ion-card-header>
+      <ion-card-title>
+        {{ editando ? 'Modificar empleado' : 'Registrar empleado' }}
+      </ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-item>
+        <ion-input
+          label="Nombre"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.nombre">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Apellido"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.apellido">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="RUT"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.rut">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Cargo"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.cargo">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-select
+          label="Tipo de contrato"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.tipoContrato">
+
+          <ion-select-option value="Indefinido">
+            Indefinido
+          </ion-select-option>
+
+          <ion-select-option value="Plazo fijo">
+            Plazo fijo
+          </ion-select-option>
+
+          <ion-select-option value="Informal">
+            Informal
+          </ion-select-option>
+
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-select
+          label="Estado"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.estado">
+
+          <ion-select-option value="Activo">
+            Activo
+          </ion-select-option>
+
+          <ion-select-option value="Despedido">
+            Despedido
+          </ion-select-option>
+
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          type="date"
+          label="Fecha de ingreso"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.fechaIngreso">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          type="date"
+          label="Fecha de término"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.fechaTermino">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Razón de despido"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.razonDespido">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Observaciones"
+          labelPlacement="stacked"
+          [(ngModel)]="empleado.observaciones">
+        </ion-input>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        (click)="guardarEmpleado()">
+
+        {{ editando ? 'Guardar cambios' : 'Registrar empleado' }}
+
+      </ion-button>
+
+      <ion-button
+        *ngIf="editando"
+        expand="block"
+        fill="outline"
+        (click)="cancelarEdicion()">
+
+        Cancelar
+
+      </ion-button>
+
+    </ion-card-content>
+
+  </ion-card>
+
+
+  <ion-card>
+
+    <ion-card-header>
+      <ion-card-title>
+        Empleados registrados
+      </ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <div *ngFor="let empleado of empleados">
+
+        <h2>
+          {{ empleado.nombre }}
+          {{ empleado.apellido }}
+        </h2>
+
+        <p>
+          RUT: {{ empleado.rut }}
+        </p>
+
+        <p>
+          Cargo: {{ empleado.cargo }}
+        </p>
+
+        <p>
+          Contrato: {{ empleado.tipoContrato }}
+        </p>
+
+        <p>
+          Estado: {{ empleado.estado }}
+        </p>
+
+        <ion-button
+          size="small"
+          (click)="editarEmpleado(empleado)">
+
+          Modificar
+
+        </ion-button>
+
+        <ion-button
+          size="small"
+          color="danger"
+          (click)="eliminarEmpleado(empleado)">
+
+          Eliminar
+
+        </ion-button>
+
+        <hr>
+
+      </div>
+
+    </ion-card-content>
+
+  </ion-card>
+
+</ion-content>
