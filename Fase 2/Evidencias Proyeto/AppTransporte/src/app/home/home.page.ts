@@ -5,6 +5,8 @@ import { IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, Io
 
 import { RouterLink } from '@angular/router';
 
+import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute } from '@angular/router';
 
 import { addIcons } from 'ionicons';
@@ -22,7 +24,7 @@ import { BarralateralComponent } from '../BarraLateral/barralateral.component';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   imports: [ BarralateralComponent,IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, 
-             IonTitle, IonMenuButton, IonButton, IonButtons, IonToolbar, IonHeader, IonSearchbar, RouterLink, NgFor, IonIcon, IonRefresher, IonRefresherContent, IonChip, IonLabel ],
+             IonTitle, IonMenuButton, IonButton, IonButtons, IonToolbar, IonHeader, IonSearchbar, RouterLink, NgFor, IonIcon, IonRefresher, IonRefresherContent, IonChip, IonLabel, CommonModule ],
 })
 export class HomePage {
 
@@ -67,35 +69,60 @@ export class HomePage {
       return fechaRevision < hoy;
     }
 
-    cargarVehiculos() {
-      this.vehiculoService.obtenerVehiculos().subscribe({
-        next: (data) => {
-          console.log('Vehículos Android:', data);
+  cargarVehiculos() {
 
-          this.vehiculos = data;
-          this.results = data;
+    this.vehiculoService.obtenerVehiculos().subscribe({
 
-          this.vehiculos.forEach(v => {
-            if (this.fechaVencida(v.fechaRevisionTecnica)) {
-              this.notificacionService.mostrarNotificacion(
-                '⚠️ Revisión técnica vencida',
-                `El vehículo ${v.patente} tiene la revisión técnica vencida`
-              );
-            }
-          });
-        },
-        error: (error) => {
-          console.error('Error Android:', error);
-        }
-      });
-    }
+      next: (data) => {
 
-    handleInput(event: Event) {
-      const target = event.target as HTMLIonSearchbarElement;
-      const query = target.value?.toLowerCase() || '';
+        console.log('Vehículos Android:', data);
 
-      this.results = this.vehiculos.filter((v) =>
-        v.patente.toLowerCase().includes(query)
-      );
-    }
+        data.forEach(v => {
+          console.log(
+            'ID:',
+            v.idVehiculo,
+            '| Patente:',
+            v.patente,
+            '| Foto:',
+            v.fotoUrl
+          );
+        });
+
+        this.vehiculos = data;
+        this.results = data;
+
+        this.vehiculos.forEach(v => {
+
+          if (this.fechaVencida(v.fechaRevisionTecnica)) {
+
+            this.notificacionService.mostrarNotificacion(
+              'Revisión técnica vencida',
+              `El vehículo ${v.patente} tiene la revisión técnica vencida`
+            );
+
+          }
+
+        });
+
+      },
+
+      error: (error) => {
+        console.error('Error Android:', error);
+      }
+
+    });
+
+  }
+
+  handleInput(event: Event) {
+
+    const target = event.target as HTMLIonSearchbarElement;
+
+    const query = target.value?.toLowerCase() || '';
+
+    this.results = this.vehiculos.filter(v =>
+      v.patente.toLowerCase().includes(query)
+    );
+
+  }
 }
