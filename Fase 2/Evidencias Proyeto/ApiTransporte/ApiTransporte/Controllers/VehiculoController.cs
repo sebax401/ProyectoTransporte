@@ -139,10 +139,16 @@ namespace ApiTransporte.Controllers
             }
 
             // Crear carpeta para las fotos
+            var webRoot = _env.WebRootPath;
+
+            if (string.IsNullOrWhiteSpace(webRoot))
+            {
+                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+            }
+
             var carpeta = Path.Combine(webRoot, "fotos-vehiculos");
 
             Directory.CreateDirectory(carpeta);
-
             // Generar nombre único
             var nombreArchivo = $"vehiculo_{id}_{Guid.NewGuid()}{extension}";
             var rutaArchivo = Path.Combine(carpeta, nombreArchivo);
