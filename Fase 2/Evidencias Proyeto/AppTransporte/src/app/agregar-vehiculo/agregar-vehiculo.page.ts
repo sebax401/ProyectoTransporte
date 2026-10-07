@@ -2,7 +2,6 @@ import { Component, ViewEncapsulation  } from '@angular/core';
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonItem,
   IonLabel, IonInput, IonButton, IonButtons, IonBackButton, IonSelect, IonSelectOption, IonDatetime
@@ -24,9 +23,6 @@ import { ActivatedRoute } from '@angular/router';
     IonLabel, IonInput, IonButton, IonButtons, IonBackButton, IonSelect, IonSelectOption, IonDatetime, CommonModule ]
 })
 export class AgregarVehiculoPage {
-
-  fotoPreview: string | null = null;
-  fotoBlob: Blob | null = null;
   
 
   vehiculo: Vehiculo = {
@@ -44,8 +40,7 @@ export class AgregarVehiculoPage {
     estadoExtintor: '',
     observacion: '',
     idConductor: 0,
-    estado: true,
-    fotoUrl: null,
+    estado: true
   };
 
   constructor(
@@ -66,29 +61,7 @@ export class AgregarVehiculoPage {
     this.vehiculo.estadoRevision =
       fechaRevision >= hoy ? 'Vigente' : 'Vencido';
   }
-  async tomarFoto() {
-    try {
-      const foto = await Camera.getPhoto({
-        quality: 80,
-        allowEditing: false,
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Camera
-      });
 
-      if (foto.webPath) {
-        this.fotoPreview = foto.webPath;
-
-        const respuesta = await fetch(foto.webPath);
-        this.fotoBlob = await respuesta.blob();
-
-        console.log('Foto preparada:', this.fotoBlob);
-      }
-
-    } catch (error) {
-      console.error('Error al tomar la foto:', error);
-    }
-  }
-  
   guardarVehiculo() {
     this.actualizarEstadoRevision();
 
@@ -104,55 +77,15 @@ export class AgregarVehiculoPage {
     console.log('Enviando vehículo:', vehiculoEnviar);
 
     this.vehiculoService.agregarVehiculo(vehiculoEnviar).subscribe({
-      next: (vehiculoCreado) => {
-
-        console.log('Vehículo creado:', vehiculoCreado);
-
-        if (this.fotoBlob) {
-
-          console.log('Subiendo foto del vehículo...');
-
-          this.vehiculoService
-            .subirFotoVehiculo(vehiculoCreado.idVehiculo, this.fotoBlob)
-            .subscribe({
-              next: (respuesta) => {
-
-                console.log('Foto subida correctamente:', respuesta);
-
-                alert('Vehículo y foto agregados correctamente');
-
-                this.router.navigate(['/home'], {
-                  queryParams: { refresh: new Date().getTime() }
-                });
-
-              },
-              error: (error) => {
-
-                console.error('Error al subir la foto:', error);
-
-                alert(
-                  'El vehículo fue creado, pero hubo un error al subir la foto.'
-                );
-
-                this.router.navigate(['/home'], {
-                  queryParams: { refresh: new Date().getTime() }
-                });
-
-              }
-            });
-
-        } else {
-          alert('Vehículo agregado correctamente');
-          this.router.navigate(['/home'], {
-            queryParams: { refresh: new Date().getTime() }
-          });
-
-        }
+      next: () => {
+        alert('Vehículo agregado correctamente');
+        this.router.navigate(['/home'], {
+          queryParams: { refresh: new Date().getTime() }
+        });
       },
       error: (error) => {
         console.error('Error completo:', error);
         console.error('Detalle:', error.error);
-
         alert(JSON.stringify(error.error));
       }
     });

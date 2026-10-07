@@ -37,8 +37,6 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles();
-
 app.UseCors("AllowIonic");
 
 app.UseAuthorization();

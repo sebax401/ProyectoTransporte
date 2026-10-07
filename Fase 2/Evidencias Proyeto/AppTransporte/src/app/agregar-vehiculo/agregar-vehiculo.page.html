@@ -30,7 +30,7 @@
   </ion-item>
 
   <ion-item>
-    <ion-label position="floating">Próximo cambio de aceite</ion-label>
+    <ion-label position="floating">Próximo kilometraje</ion-label>
     <ion-input type="number" [(ngModel)]="vehiculo.proximoKilometraje"></ion-input>
   </ion-item>
 
@@ -38,37 +38,15 @@
     <ion-label position="floating">Estado DPF</ion-label>
     <ion-input [(ngModel)]="vehiculo.estadoDpf"></ion-input>
   </ion-item><br><br>
-  <div style="margin-top: 20px; text-align: center;">
 
-  <ion-button expand="block" (click)="tomarFoto()">
-    📷 Tomar foto del vehículo
-  </ion-button>
-
-  <div *ngIf="fotoPreview" style="margin-top: 15px;">
-      <p><strong>Foto del vehículo:</strong></p>
-
-      <img
-        [src]="fotoPreview"
-        alt="Foto del vehículo"
-        style="
-          width: 100%;
-          max-width: 400px;
-          border-radius: 12px;
-          object-fit: cover;
-        "
-      >
-    </div>
-
-  </div>
-
-  <ion-item>
-    <ion-label position="stacked">Fecha vencimiento revisión</ion-label>
-    <ion-input
-      type="date"
-      [(ngModel)]="vehiculo.fechaRevisionTecnica"
-      (ionChange)="actualizarEstadoRevision()">
-    </ion-input>
-  </ion-item>
+<ion-item>
+  <ion-label position="stacked">Fecha vencimiento revisión</ion-label>
+  <ion-input
+    type="date"
+    [(ngModel)]="vehiculo.fechaRevisionTecnica"
+    (ionChange)="actualizarEstadoRevision()">
+  </ion-input>
+</ion-item>
             
   <ion-item>
     <ion-select label="Estado extintor" placeholder="Seleccione" [(ngModel)]="vehiculo.estadoExtintor">

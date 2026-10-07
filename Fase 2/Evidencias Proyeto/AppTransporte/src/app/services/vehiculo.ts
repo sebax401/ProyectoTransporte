@@ -23,8 +23,6 @@ export interface Vehiculo {
   idConductor: number | null;
 
   estado: boolean;
-
-  fotoUrl: string | null;
 }
 
 @Injectable({
@@ -40,17 +38,7 @@ export class VehiculoService {
   }
 
   agregarVehiculo(vehiculo: Vehiculo): Observable<Vehiculo> {
-      return this.http.post<Vehiculo>(this.apiUrl, vehiculo);
-    }
-    subirFotoVehiculo(id: number, foto: Blob): Observable<any> {
-    const formData = new FormData();
-
-    formData.append('foto', foto, `vehiculo_${id}.jpg`);
-
-    return this.http.post<any>(
-      `${this.apiUrl}/${id}/foto`,
-      formData
-    );
+    return this.http.post<Vehiculo>(this.apiUrl, vehiculo);
   }
 
   obtenerVehiculos(): Observable<Vehiculo[]> {
