@@ -2,7 +2,6 @@ using ApiTransporte.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseWebRoot("wwwroot");
 
 builder.Services.AddCors(options =>
 {
