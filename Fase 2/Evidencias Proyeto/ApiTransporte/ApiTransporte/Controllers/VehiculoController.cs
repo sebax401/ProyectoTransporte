@@ -130,21 +130,30 @@ namespace ApiTransporte.Controllers
                 return BadRequest("La imagen no puede superar los 5 MB.");
             }
 
-            var carpeta = Path.Combine(
-                _env.WebRootPath,
-                "fotos-vehiculos"
-            );
+            // Obtener la carpeta wwwroot de forma segura
+            var webRoot = _env.WebRootPath;
+
+            if (string.IsNullOrWhiteSpace(webRoot))
+            {
+                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+            }
+
+            // Crear carpeta para las fotos
+            var carpeta = Path.Combine(webRoot, "fotos-vehiculos");
 
             Directory.CreateDirectory(carpeta);
 
+            // Generar nombre único
             var nombreArchivo = $"vehiculo_{id}_{Guid.NewGuid()}{extension}";
             var rutaArchivo = Path.Combine(carpeta, nombreArchivo);
 
+            // Guardar imagen
             using (var stream = new FileStream(rutaArchivo, FileMode.Create))
             {
                 await foto.CopyToAsync(stream);
             }
 
+            // Guardar URL en la base de datos
             vehiculo.FotoUrl = $"/fotos-vehiculos/{nombreArchivo}";
 
             await _context.SaveChangesAsync();
