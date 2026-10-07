@@ -2,6 +2,7 @@ using ApiTransporte.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseWebRoot("wwwroot");
 
 builder.Services.AddCors(options =>
 {
@@ -37,9 +38,9 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles();
-
 app.UseCors("AllowIonic");
+
+app.UseStaticFiles();
 
 app.UseAuthorization();
 
