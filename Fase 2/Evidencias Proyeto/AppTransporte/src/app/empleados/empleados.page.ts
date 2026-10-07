@@ -16,7 +16,8 @@ import {
   IonCard,
   IonCardContent,
   IonCardHeader,
-  IonCardTitle
+  IonCardTitle,
+  IonBackButton
 } from '@ionic/angular/standalone';
 
 import {
@@ -45,7 +46,8 @@ import {
     IonCard,
     IonCardContent,
     IonCardHeader,
-    IonCardTitle
+    IonCardTitle,
+    IonBackButton
   ]
 })
 export class EmpleadosPage implements OnInit {
