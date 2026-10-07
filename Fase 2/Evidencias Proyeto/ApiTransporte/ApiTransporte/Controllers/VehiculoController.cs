@@ -158,5 +158,42 @@ namespace ApiTransporte.Controllers
                 fotoUrl = vehiculo.FotoUrl
             });
         }
+        [HttpGet("foto-test/{nombreArchivo}")]
+        public IActionResult FotoTest(string nombreArchivo)
+        {
+            var webRoot = _env.WebRootPath;
+
+            if (string.IsNullOrWhiteSpace(webRoot))
+            {
+                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+            }
+
+            var rutaArchivo = Path.Combine(
+                webRoot,
+                "fotos-vehiculos",
+                nombreArchivo
+            );
+
+            if (!System.IO.File.Exists(rutaArchivo))
+            {
+                return NotFound(new
+                {
+                    mensaje = "Archivo no encontrado",
+                    ruta = rutaArchivo
+                });
+            }
+
+            var extension = Path.GetExtension(nombreArchivo).ToLowerInvariant();
+
+            var contentType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+
+            return PhysicalFile(rutaArchivo, contentType);
+        }
     }
 }

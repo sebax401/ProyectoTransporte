@@ -15,6 +15,7 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 RUN mkdir -p /app/wwwroot/fotos-vehiculos
+RUN ls -la /app/wwwroot
 
 ENV ASPNETCORE_URLS=http://+:10000
 
