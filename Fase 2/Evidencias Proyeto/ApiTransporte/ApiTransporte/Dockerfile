@@ -14,4 +14,10 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
+RUN mkdir -p /app/wwwroot/fotos-vehiculos
+
+ENV ASPNETCORE_URLS=http://+:10000
+
+EXPOSE 10000
+
 ENTRYPOINT ["dotnet", "ApiTransporte.dll"]
