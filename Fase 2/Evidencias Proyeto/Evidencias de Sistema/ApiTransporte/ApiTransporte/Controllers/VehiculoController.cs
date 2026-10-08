@@ -10,10 +10,12 @@ namespace ApiTransporte.Controllers
     public class VehiculosController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public VehiculosController(AppDbContext context)
+        public VehiculosController(AppDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         [HttpGet]
@@ -97,6 +99,101 @@ namespace ApiTransporte.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/foto")]
+        public async Task<IActionResult> SubirFotoVehiculo(int id, IFormFile foto)
+        {
+            var vehiculo = await _context.Vehiculo.FindAsync(id);
+
+            if (vehiculo == null)
+            {
+                return NotFound("Vehículo no encontrado.");
+            }
+
+            if (foto == null || foto.Length == 0)
+            {
+                return BadRequest("No se recibió ninguna imagen.");
+            }
+
+            var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(foto.FileName).ToLowerInvariant();
+
+            if (!extensionesPermitidas.Contains(extension))
+            {
+                return BadRequest("Formato de imagen no permitido.");
+            }
+
+            if (foto.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest("La imagen no puede superar los 5 MB.");
+            }
+
+            var webRoot = _env.WebRootPath;
+
+            if (string.IsNullOrWhiteSpace(webRoot))
+            {
+                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+            }
+
+            var carpeta = Path.Combine(webRoot, "fotos-vehiculos");
+
+            Directory.CreateDirectory(carpeta);
+
+            var nombreArchivo = $"vehiculo_{id}_{Guid.NewGuid()}{extension}";
+            var rutaArchivo = Path.Combine(carpeta, nombreArchivo);
+
+            using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+            {
+                await foto.CopyToAsync(stream);
+            }
+
+            vehiculo.FotoUrl = $"/fotos-vehiculos/{nombreArchivo}";
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                mensaje = "Foto subida correctamente.",
+                fotoUrl = vehiculo.FotoUrl
+            });
+        }
+        [HttpGet("foto-test/{nombreArchivo}")]
+        public IActionResult FotoTest(string nombreArchivo)
+        {
+            var webRoot = _env.WebRootPath;
+
+            if (string.IsNullOrWhiteSpace(webRoot))
+            {
+                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+            }
+
+            var rutaArchivo = Path.Combine(
+                webRoot,
+                "fotos-vehiculos",
+                nombreArchivo
+            );
+
+            if (!System.IO.File.Exists(rutaArchivo))
+            {
+                return NotFound(new
+                {
+                    mensaje = "Archivo no encontrado",
+                    ruta = rutaArchivo
+                });
+            }
+
+            var extension = Path.GetExtension(nombreArchivo).ToLowerInvariant();
+
+            var contentType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+
+            return PhysicalFile(rutaArchivo, contentType);
         }
     }
 }

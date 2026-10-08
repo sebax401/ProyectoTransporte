@@ -39,6 +39,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowIonic");
 
+app.UseStaticFiles();
+
 app.UseAuthorization();
 
 app.MapControllers();
