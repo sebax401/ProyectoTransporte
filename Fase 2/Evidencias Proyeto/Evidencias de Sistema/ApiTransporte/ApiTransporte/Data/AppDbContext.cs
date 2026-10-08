@@ -1,4 +1,4 @@
-﻿using ApiTransporte.Models;
+using ApiTransporte.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiTransporte.Data
@@ -13,6 +13,6 @@ namespace ApiTransporte.Data
 
         public DbSet<Reporte> Reporte { get; set; }
 
-        public DbSet<Empleado> Empleados { get; set; }
+        public DbSet<Empleados> Empleados { get; set; }
     }
 }
