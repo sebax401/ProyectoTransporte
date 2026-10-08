@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj": {}
+    "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\Evidencias Proyeto\\Evidencias de Sistema\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj": {}
   },
   "projects": {
-    "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj": {
+    "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\Evidencias Proyeto\\Evidencias de Sistema\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj",
+        "projectUniqueName": "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\Evidencias Proyeto\\Evidencias de Sistema\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj",
         "projectName": "ApiTransporte",
-        "projectPath": "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj",
+        "projectPath": "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\Evidencias Proyeto\\Evidencias de Sistema\\ApiTransporte\\ApiTransporte\\ApiTransporte.csproj",
         "packagesPath": "C:\\Users\\cabre\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\ApiTransporte\\ApiTransporte\\obj\\",
+        "outputPath": "C:\\Users\\cabre\\Desktop\\ProyectoTransporte\\Fase 2\\Evidencias Proyeto\\Evidencias de Sistema\\ApiTransporte\\ApiTransporte\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
