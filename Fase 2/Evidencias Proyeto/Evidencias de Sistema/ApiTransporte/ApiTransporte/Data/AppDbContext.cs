@@ -13,6 +13,6 @@ namespace ApiTransporte.Data
 
         public DbSet<Reporte> Reporte { get; set; }
 
-        public DbSet<Empleado> Empleado { get; set; }
+        public DbSet<Empleado> Empleados { get; set; }
     }
 }
