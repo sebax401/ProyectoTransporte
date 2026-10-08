@@ -22,7 +22,7 @@ export interface Empleado {
 export class EmpleadoService {
 
   private apiUrl =
-    'https://apitransporte.onrender.com/api/Empleado';
+    'https://apitransporte.onrender.com/api/Empleados';
 
   constructor(private http: HttpClient) {}
 

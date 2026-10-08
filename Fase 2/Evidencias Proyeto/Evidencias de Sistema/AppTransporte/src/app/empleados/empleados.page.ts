@@ -17,9 +17,11 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonBackButton
+  IonBackButton,
+  IonMenuButton,
+  IonButtons
 } from '@ionic/angular/standalone';
-
+import { BarralateralComponent } from '../BarraLateral/barralateral.component';
 import {
   Empleado,
   EmpleadoService
@@ -47,7 +49,10 @@ import {
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
-    IonBackButton
+    IonBackButton,
+    IonMenuButton,
+    IonButtons,
+    BarralateralComponent
   ]
 })
 export class EmpleadosPage implements OnInit {

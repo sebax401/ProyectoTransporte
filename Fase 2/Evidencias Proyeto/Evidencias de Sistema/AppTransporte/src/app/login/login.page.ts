@@ -56,7 +56,7 @@ export class LoginPage {
     try {
       await this.authService.login(this.email, this.password);
       await loading.dismiss();
-      this.router.navigateByUrl('/home', { replaceUrl: true });
+      this.router.navigateByUrl('/Home', { replaceUrl: true });
     } catch (error: any) {
       await loading.dismiss();
       this.showToast(error.message || 'Error al iniciar sesión.');

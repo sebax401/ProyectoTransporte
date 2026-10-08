@@ -2,25 +2,25 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
-    path: 'Inicio',
-    loadComponent: () => import('./Inicio/login.page').then(m => m.LoginPage)
+    path: 'login',
+    loadComponent: () => import('./login/login.page').then(m => m.LoginPage)
   },
   {
-    path: 'home',
-    loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
+    path: 'Home',
+    loadComponent: () => import('./Home/Home.page').then(m => m.HomePage),
   },
   {
     path: '',
-    redirectTo: 'Inicio',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
   {
     path: 'datos-vehiculo/:id',
-    loadComponent: () => import('./datos-vehiculo/datos-vehiculo.page').then( m => m.DatosVehiculoPage)
+    loadComponent: () => import('./Vehiculos/datos-vehiculo/datos-vehiculo.page').then( m => m.DatosVehiculoPage)
   },
   {
     path: 'agregar-vehiculo',
-    loadComponent: () => import('./agregar-vehiculo/agregar-vehiculo.page').then( m => m.AgregarVehiculoPage)
+    loadComponent: () => import('./Vehiculos/agregar-vehiculo/agregar-vehiculo.page').then( m => m.AgregarVehiculoPage)
   },
   {
     path: 'reportes/:id',
@@ -37,9 +37,8 @@ export const routes: Routes = [
       .then(m => m.EmpleadosPage)
   },
   {
-  path: 'agregar-empleado',
-  loadComponent: () =>
-    import('./agregar-empleado/agregar-empleado.page')
-      .then(m => m.AgregarEmpleadoPage)
-},
+    path: 'ListarVehiculos',
+    loadComponent: () => import('./Vehiculos/Ver-vehiculo/Ver-vehiculo.page').then((m) => m.VerVehiculoPage),
+  },
+
 ];

@@ -9,7 +9,8 @@ import {
   IonList, 
   IonItem,
   MenuController,
-  IonLabel
+  IonLabel,
+  IonMenuToggle
 } from '@ionic/angular/standalone';
 import { AuthService } from '../services/auth.service';
 
@@ -26,7 +27,8 @@ import { AuthService } from '../services/auth.service';
     IonList, 
     IonItem,
     RouterLink,
-    IonLabel
+    IonLabel,
+    IonMenuToggle
   ]
 })
 export class BarralateralComponent {

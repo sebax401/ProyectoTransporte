@@ -13,7 +13,7 @@ import { trashBinOutline } from 'ionicons/icons';
 
 import {RouterLink} from '@angular/router';
 
-import { VehiculoService, Vehiculo } from '../services/vehiculo';
+import { VehiculoService, Vehiculo } from '../../services/vehiculo';
 
 @Component({
   selector: 'app-datos-vehiculo',

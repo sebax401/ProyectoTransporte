@@ -8,7 +8,7 @@ import {
   IonLabel, IonInput, IonButton, IonButtons, IonBackButton, IonSelect, IonSelectOption, IonDatetime
 } from '@ionic/angular/standalone';
 
-import { VehiculoService, Vehiculo } from '../services/vehiculo';
+import { VehiculoService, Vehiculo } from '../../services/vehiculo';
 
 import { ActivatedRoute } from '@angular/router';
 
