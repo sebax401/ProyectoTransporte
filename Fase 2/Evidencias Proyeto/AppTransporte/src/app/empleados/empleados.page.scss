@@ -1,0 +1,16 @@
+ion-header {
+  height: auto !important;
+}
+
+ion-toolbar {
+  --min-height: 56px !important;
+  height: 56px !important;
+}
+
+ion-content {
+  --padding-top: 0;
+}
+
+ion-card {
+  margin: 16px 0;
+}
