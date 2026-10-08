@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApiTransporte.Models
 {
-    public class Empleado
+    public class Empleados
     {
         [Key]
         public int IdEmpleado { get; set; }
