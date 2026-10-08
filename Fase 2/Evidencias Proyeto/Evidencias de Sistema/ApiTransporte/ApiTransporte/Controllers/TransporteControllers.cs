@@ -18,7 +18,7 @@ namespace ApiTransporte.Controllers
 
         
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Empleado>>> GetEmpleados()
+        public async Task<ActionResult<IEnumerable<Empleados>>> GetEmpleados()
         {
             return await _context.Empleados
                 .OrderBy(e => e.Apellido)
@@ -28,7 +28,7 @@ namespace ApiTransporte.Controllers
 
       
         [HttpGet("{id}")]
-        public async Task<ActionResult<Empleado>> GetEmpleado(int id)
+        public async Task<ActionResult<Empleados>> GetEmpleado(int id)
         {
             var empleado = await _context.Empleados.FindAsync(id);
 
@@ -45,7 +45,7 @@ namespace ApiTransporte.Controllers
 
       
         [HttpPost]
-        public async Task<ActionResult<Empleado>> CrearEmpleado(Empleado empleado)
+        public async Task<ActionResult<Empleados>> CrearEmpleado(Empleados empleado)
         {
             if (string.IsNullOrWhiteSpace(empleado.Nombre) ||
                 string.IsNullOrWhiteSpace(empleado.Apellido) ||
@@ -84,7 +84,7 @@ namespace ApiTransporte.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> ModificarEmpleado(
             int id,
-            Empleado empleado)
+            Empleados empleado)
         {
             if (id != empleado.IdEmpleado)
             {
