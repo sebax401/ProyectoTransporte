@@ -23,6 +23,8 @@ export interface Vehiculo {
   idConductor: number | null;
 
   estado: boolean;
+
+  fotoUrl: string | null;
 }
 
 @Injectable({
@@ -31,14 +33,24 @@ export interface Vehiculo {
 export class VehiculoService {
 
 
-  private apiUrl = 'http://localhost:5000/api/Vehiculos';
+  private apiUrl = 'https://proyectotransporte.onrender.com/api/vehiculos';
 
   constructor(private http: HttpClient) {
     console.log('API URL usada:', this.apiUrl);
   }
 
   agregarVehiculo(vehiculo: Vehiculo): Observable<Vehiculo> {
-    return this.http.post<Vehiculo>(this.apiUrl, vehiculo);
+      return this.http.post<Vehiculo>(this.apiUrl, vehiculo);
+    }
+    subirFotoVehiculo(id: number, foto: Blob): Observable<any> {
+    const formData = new FormData();
+
+    formData.append('foto', foto, `vehiculo_${id}.jpg`);
+
+    return this.http.post<any>(
+      `${this.apiUrl}/${id}/foto`,
+      formData
+    );
   }
 
   obtenerVehiculos(): Observable<Vehiculo[]> {
