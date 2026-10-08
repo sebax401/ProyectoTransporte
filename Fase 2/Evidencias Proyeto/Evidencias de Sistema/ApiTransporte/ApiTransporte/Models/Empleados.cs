@@ -32,5 +32,7 @@ namespace ApiTransporte.Models
         public string? RazonDespido { get; set; }
 
         public string? Observaciones { get; set; }
+        
+        public string? FotoUrl { get; set; }
     }
 }
