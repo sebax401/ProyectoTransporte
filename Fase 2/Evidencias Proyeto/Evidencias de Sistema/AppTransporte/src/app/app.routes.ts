@@ -37,9 +37,9 @@ export const routes: Routes = [
       .then(m => m.EmpleadosPage)
   },
   {
-   path: 'empleados',
+  path: 'agregar-empleado',
   loadComponent: () =>
-    import('./empleados/empleados.page')
-      .then(m => m.EmpleadosPage)
-  }
+    import('./agregar-empleado/agregar-empleado.page')
+      .then(m => m.AgregarEmpleadoPage)
+},
 ];
