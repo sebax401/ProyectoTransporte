@@ -6,22 +6,17 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
-    ?? throw new InvalidOperationException("Falta la clave JwtSettings:Secret en appsettings.json");
-var key = Encoding.UTF8.GetBytes(jwtSecret);
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
-{
+{   
+    options.Authority = builder.Configuration["JwtSettings:Issuer"];
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = true,
         ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
         ValidateAudience = true,
