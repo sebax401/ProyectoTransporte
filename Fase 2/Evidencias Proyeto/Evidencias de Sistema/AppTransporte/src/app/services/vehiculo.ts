@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Capacitor } from '@capacitor/core';
+import { Observable, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { AuthService } from './auth.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 export interface Vehiculo {
   idVehiculo: number;
@@ -32,39 +34,58 @@ export interface Vehiculo {
 })
 export class VehiculoService {
 
+  private apiUrl = `${environment.apiUrl}api/vehiculos`;
 
-  private apiUrl = 'https://proyectotransporte.onrender.com/api/vehiculos';
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService 
+  ) {}
 
-  constructor(private http: HttpClient) {
-    console.log('API URL usada:', this.apiUrl);
+  private async getAuthHeaders(): Promise<HttpHeaders> {
+    const session = await this.authService.getSession();
+    const token = session?.access_token || '';
+
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
   }
 
   agregarVehiculo(vehiculo: Vehiculo): Observable<Vehiculo> {
-      return this.http.post<Vehiculo>(this.apiUrl, vehiculo);
-    }
-    subirFotoVehiculo(id: number, foto: Blob): Observable<any> {
-    const formData = new FormData();
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.post<Vehiculo>(this.apiUrl, vehiculo, { headers }))
+    );
+  }
 
+  subirFotoVehiculo(id: number, foto: Blob): Observable<any> {
+    const formData = new FormData();
     formData.append('foto', foto, `vehiculo_${id}.jpg`);
 
-    return this.http.post<any>(
-      `${this.apiUrl}/${id}/foto`,
-      formData
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.post<any>(`${this.apiUrl}/${id}/foto`, formData, { headers }))
     );
   }
 
   obtenerVehiculos(): Observable<Vehiculo[]> {
-    return this.http.get<Vehiculo[]>(this.apiUrl);
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.get<Vehiculo[]>(this.apiUrl, { headers }))
+    );
   }
+
   obtenerVehiculo(id: number): Observable<Vehiculo> {
-    return this.http.get<Vehiculo>(`${this.apiUrl}/${id}`);
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.get<Vehiculo>(`${this.apiUrl}/${id}`, { headers }))
+    );
   }
 
   modificarVehiculo(id: number, vehiculo: Vehiculo): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, vehiculo);
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.put<void>(`${this.apiUrl}/${id}`, vehiculo, { headers }))
+    );
   }
 
   eliminarVehiculo(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.delete<void>(`${this.apiUrl}/${id}`, { headers }))
+    );
   }
 }

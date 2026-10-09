@@ -59,7 +59,6 @@ import {
 export class EmpleadosPage implements OnInit {
 
   empleados: Empleado[] = [];
-
   empleado: Empleado = this.empleadoVacio();
 
   editando = false;
@@ -73,6 +72,13 @@ export class EmpleadosPage implements OnInit {
   ngOnInit() {
     this.cargarEmpleados();
   }
+
+  // Método auxiliar para limpiar formatos ISO (T00:00:00)
+  private formatearFechaInput(fecha: string | null | undefined): string | null {
+    if (!fecha) return null;
+    return fecha.split('T')[0];
+  }
+
   async tomarFoto() {
     try {
       const foto = await Camera.getPhoto({
@@ -84,18 +90,14 @@ export class EmpleadosPage implements OnInit {
 
       if (foto.webPath) {
         this.fotoPreview = foto.webPath;
-
         const respuesta = await fetch(foto.webPath);
         this.fotoBlob = await respuesta.blob();
-
         console.log('Foto preparada:', this.fotoBlob);
       }
     } catch (error) {
       console.error('Error al tomar la foto:', error);
     }
   }
-
-
 
   empleadoVacio(): Empleado {
     return {
@@ -115,23 +117,22 @@ export class EmpleadosPage implements OnInit {
   }
 
   cargarEmpleados() {
-
-    this.empleadoService.obtenerEmpleados()
-      .subscribe({
-        next: (data) => {
-          this.empleados = data;
-        },
-
-        error: (error) => {
-          console.error(
-            'Error al cargar empleados',
-            error
-          );
-        }
-      });
+    this.empleadoService.obtenerEmpleados().subscribe({
+      next: (data) => {
+        // Normalizamos las fechas al cargar la lista
+        this.empleados = data.map(e => ({
+          ...e,
+          fechaIngreso: this.formatearFechaInput(e.fechaIngreso) || '',
+          fechaTermino: this.formatearFechaInput(e.fechaTermino)
+        }));
+      },
+      error: (error) => {
+        console.error('Error al cargar empleados', error);
+      }
+    });
   }
 
- guardarEmpleado() {
+  guardarEmpleado() {
     if (
       !this.empleado.nombre ||
       !this.empleado.apellido ||
@@ -197,50 +198,38 @@ export class EmpleadosPage implements OnInit {
       }
     });
   }
-  editarEmpleado(empleado: Empleado) {
 
+  editarEmpleado(empleado: Empleado) {
+    // Formateamos las fechas antes de cargarlas en los inputs del formulario
     this.empleado = {
-      ...empleado
+      ...empleado,
+      fechaIngreso: this.formatearFechaInput(empleado.fechaIngreso) || '',
+      fechaTermino: this.formatearFechaInput(empleado.fechaTermino)
     };
 
     this.editando = true;
   }
 
   cancelarEdicion() {
-      this.empleado = this.empleadoVacio();
-      this.fotoPreview = null;
-      this.fotoBlob = null;
-      this.editando = false;
-    }
+    this.empleado = this.empleadoVacio();
+    this.fotoPreview = null;
+    this.fotoBlob = null;
+    this.editando = false;
+  }
 
   eliminarEmpleado(empleado: Empleado) {
-
-    if (
-      !confirm(
-        `¿Desea eliminar a ${empleado.nombre} ${empleado.apellido}?`
-      )
-    ) {
+    if (!confirm(`¿Desea eliminar a ${empleado.nombre} ${empleado.apellido}?`)) {
       return;
     }
 
-    this.empleadoService
-      .eliminarEmpleado(empleado.idEmpleado)
-      .subscribe({
-
-        next: () => {
-
-          alert('Empleado eliminado');
-
-          this.cargarEmpleados();
-        },
-
-        error: (error) => {
-
-          console.error(
-            'Error al eliminar empleado',
-            error
-          );
-        }
-      });
+    this.empleadoService.eliminarEmpleado(empleado.idEmpleado).subscribe({
+      next: () => {
+        alert('Empleado eliminado');
+        this.cargarEmpleados();
+      },
+      error: (error) => {
+        console.error('Error al eliminar empleado', error);
+      }
+    });
   }
 }

@@ -43,7 +43,7 @@ export class BarralateralComponent {
     try {
       await this.menuCtrl.close(); // Cierra el menú lateral desplegado
       await this.authService.logout(); // Llama a supabase.auth.signOut()
-      this.router.navigateByUrl('/Inicio', { replaceUrl: true }); // Redirige al Login
+      this.router.navigateByUrl('/login', { replaceUrl: true }); // Redirige al Login
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }

@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+import { environment } from 'src/environments/environment';
 
 export interface Empleado {
   idEmpleado: number;
@@ -22,50 +25,58 @@ export interface Empleado {
 })
 export class EmpleadoService {
 
-  private apiUrl =
-    'https://proyectotransporte.onrender.com/api/Empleado';
+  private apiUrl = `${environment.apiUrl}api/Empleado`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
+
+  private async getAuthHeaders(): Promise<HttpHeaders> {
+    const session = await this.authService.getSession();
+    const token = session?.access_token || '';
+
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  }
 
   obtenerEmpleados(): Observable<Empleado[]> {
-    return this.http.get<Empleado[]>(this.apiUrl);
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.get<Empleado[]>(this.apiUrl, { headers }))
+    );
   }
 
   obtenerEmpleado(id: number): Observable<Empleado> {
-    return this.http.get<Empleado>(
-      `${this.apiUrl}/${id}`
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.get<Empleado>(`${this.apiUrl}/${id}`, { headers }))
     );
   }
 
   crearEmpleado(empleado: Empleado): Observable<Empleado> {
-    return this.http.post<Empleado>(
-      this.apiUrl,
-      empleado
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.post<Empleado>(this.apiUrl, empleado, { headers }))
     );
   }
 
-  modificarEmpleado(
-    id: number,
-    empleado: Empleado
-  ): Observable<void> {
-    return this.http.put<void>(
-      `${this.apiUrl}/${id}`,
-      empleado
+  modificarEmpleado(id: number, empleado: Empleado): Observable<void> {
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.put<void>(`${this.apiUrl}/${id}`, empleado, { headers }))
     );
   }
 
   eliminarEmpleado(id: number): Observable<void> {
-    return this.http.delete<void>(
-      `${this.apiUrl}/${id}`
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.delete<void>(`${this.apiUrl}/${id}`, { headers }))
     );
   }
+
   subirFotoEmpleado(idEmpleado: number, foto: Blob): Observable<any> {
     const formData = new FormData();
     formData.append('foto', foto, `empleado_${idEmpleado}.jpg`);
 
-    return this.http.post(
-      `${this.apiUrl}/${idEmpleado}/foto`,
-      formData
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.post(`${this.apiUrl}/${idEmpleado}/foto`, formData, { headers }))
     );
   }
 }

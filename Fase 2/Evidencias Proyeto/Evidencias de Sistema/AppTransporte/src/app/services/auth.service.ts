@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, User, Session } from '@supabase/supabase-js';
 import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root'
@@ -10,8 +10,21 @@ export class AuthService {
   constructor() {
     this.supabase = createClient(
       environment.SUPABASE_URL,
-      environment.SUPABASE_PUBLISHABLE_KEY
-    );
+      environment.SUPABASE_PUBLISHABLE_KEY,
+      {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false
+      }
+    }
+  );
+    
+  }
+
+  async getSession(): Promise<Session | null> {
+    const { data: { session } } = await this.supabase.auth.getSession();
+    return session;
   }
 
   async login(email: string, password: string) {
