@@ -17,19 +17,24 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
-{   
-    options.Authority = builder.Configuration["JwtSettings:Issuer"];
+{
+    var issuer = builder.Configuration["JwtSettings:Issuer"];
+    
+    options.Authority = issuer;
+    
+    options.RequireHttpsMetadata = true; 
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidIssuer = issuer,
         ValidateAudience = true,
         ValidAudience = builder.Configuration["JwtSettings:Audience"],
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
-});
+})
 
 builder.Services.AddCors(options =>
 {
