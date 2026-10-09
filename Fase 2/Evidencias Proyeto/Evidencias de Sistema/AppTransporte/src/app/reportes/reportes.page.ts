@@ -17,7 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 
 export class ReportesPage implements OnInit {
   
-  private apiUrl = 'https://apitransporte.onrender.com/api/Reportes';
+  private apiUrl = 'https://proyectotransporte.onrender.com/api/Reportes';
 
   subTipo: string = ''
 

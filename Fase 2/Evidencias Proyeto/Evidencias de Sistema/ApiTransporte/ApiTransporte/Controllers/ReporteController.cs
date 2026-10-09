@@ -2,11 +2,13 @@
 using ApiTransporte.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ApiTransporte.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ReportesController : ControllerBase
     {
         private readonly AppDbContext _context;
