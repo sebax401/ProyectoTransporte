@@ -5,6 +5,7 @@ import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonLabel, IonIt
         IonCardHeader, IonAccordion, IonAccordionGroup, IonInput, IonSelect, IonSelectOption, IonButtons, IonBackButton } from '@ionic/angular/standalone';
 import { Reporte, ReporteService } from '../services/reporte';
 import { ActivatedRoute } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-reportes',
@@ -34,7 +35,7 @@ export class ReportesPage implements OnInit {
 
   reportes: Reporte[] = [];
 
-  constructor(  private reporteService: ReporteService, private route: ActivatedRoute) { 
+  constructor(  private reporteService: ReporteService, private route: ActivatedRoute, private authService: AuthService,) { 
   }
 
   repuestoEditando: number | null = null;
@@ -57,7 +58,7 @@ export class ReportesPage implements OnInit {
       }
     });
   }
-  cargarReportes() {
+  async cargarReportes() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     this.reporteService.obtenerReportesVehiculo(id).subscribe({
@@ -70,7 +71,15 @@ export class ReportesPage implements OnInit {
     });
   }
 
-  generarReporte() {
+  async generarReporte() {
+    const session = await this.authService.getSession();
+    const token = session?.access_token;
+    
+    if (!token) {
+      alert("No hay un token activo. Por favor vuelve a iniciar sesión.");
+      return;
+    }
+
     const idVehiculo = Number(this.route.snapshot.paramMap.get('id'));
 
     const descripcionFinal =
@@ -102,7 +111,10 @@ export class ReportesPage implements OnInit {
     });
   }
 
-  mostrarFormularioRepuesto(reporte: Reporte) {
+  async mostrarFormularioRepuesto(reporte: Reporte) {
+    const session = await this.authService.getSession();
+    const token = session?.access_token;
+    
     this.repuestoEditando = reporte.idReporte;
 
     this.repuestoForm = {
@@ -112,7 +124,10 @@ export class ReportesPage implements OnInit {
     };
   }
 
-  guardarRepuesto(reporte: Reporte) {
+  async guardarRepuesto(reporte: Reporte) {
+    const session = await this.authService.getSession();
+    const token = session?.access_token;
+
     const reporteActualizado: Reporte = {
       ...reporte,
       nombreRepuesto: this.repuestoForm.nombreRepuesto,
