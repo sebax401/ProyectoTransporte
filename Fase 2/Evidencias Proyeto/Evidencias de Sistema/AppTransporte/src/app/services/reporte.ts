@@ -21,7 +21,7 @@ export interface Reporte{
 })
 export class ReporteService {
 
- private apiUrl = 'https://apitransporte.onrender.com/api/Reportes';
+ private apiUrl = 'https://proyectotransporte.onrender.com/api/Reportes';
     constructor(private http: HttpClient) {
       console.log('API URL usada:', this.apiUrl);
     }
