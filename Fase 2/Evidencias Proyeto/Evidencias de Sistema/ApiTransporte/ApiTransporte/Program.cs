@@ -1,16 +1,15 @@
 using ApiTransporte.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 
-
-
 var builder = WebApplication.CreateBuilder(args);
 
+// Limpiar mapeo de Claims de JWT
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
+// Configuración de Autenticación
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -21,8 +20,7 @@ builder.Services.AddAuthentication(options =>
     var issuer = builder.Configuration["JwtSettings:Issuer"];
     
     options.Authority = issuer;
-    
-    options.RequireHttpsMetadata = true; 
+    options.RequireHttpsMetadata = true;
 
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -34,7 +32,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
-})
+});
 
 builder.Services.AddCors(options =>
 {
@@ -53,10 +51,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
 app.UseDeveloperExceptionPage();
 
 using (var scope = app.Services.CreateScope())
@@ -69,11 +67,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
 app.UseCors("AllowIonic");
-
 app.UseStaticFiles();
-
 
 app.UseAuthentication();
 app.UseAuthorization();
