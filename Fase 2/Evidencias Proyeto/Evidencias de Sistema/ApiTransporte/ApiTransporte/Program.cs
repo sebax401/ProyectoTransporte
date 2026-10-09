@@ -6,10 +6,8 @@ using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Limpiar mapeo de Claims de JWT
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-// Configuración de Autenticación
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -17,29 +15,21 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    var issuer = builder.Configuration["JwtSettings:Issuer"] ?? "";
+    var issuer = builder.Configuration["JwtSettings:Issuer"];
     
-    // Si la variable en Render viene sin "https://", se lo anteponemos explícitamente
-    if (!string.IsNullOrEmpty(issuer) && !issuer.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-    {
-        issuer = "https://" + issuer.TrimStart('/');
-    }
-
     options.Authority = issuer;
     options.RequireHttpsMetadata = true;
 
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        ValidateIssuer = true,
-        ValidIssuer = issuer,
+        ValidateIssuer = false, 
         ValidateAudience = true,
-        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"] ?? "authenticated",
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
 });
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowIonic", policy =>
