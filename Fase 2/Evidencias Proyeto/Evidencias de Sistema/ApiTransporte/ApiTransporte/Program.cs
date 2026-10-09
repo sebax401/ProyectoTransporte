@@ -7,7 +7,6 @@ using System.IdentityModel.Tokens.Jwt;
 
 
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -53,6 +52,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+app.UseDeveloperExceptionPage();
 
 using (var scope = app.Services.CreateScope())
 {
