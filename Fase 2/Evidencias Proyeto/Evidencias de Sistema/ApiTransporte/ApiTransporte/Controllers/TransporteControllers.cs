@@ -139,5 +139,63 @@ namespace ApiTransporte.Controllers
 
             return NoContent();
         }
+        [HttpPost("{id}/foto")]
+        public async Task<IActionResult> SubirFotoEmpleado(int id, IFormFile foto)
+        {
+            var empleado = await _context.Empleados.FindAsync(id);
+
+            if (empleado == null)
+            {
+                return NotFound("Empleado no encontrado.");
+            }
+
+            if (foto == null || foto.Length == 0)
+            {
+                return BadRequest("No se recibió ninguna imagen.");
+            }
+
+            var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(foto.FileName).ToLowerInvariant();
+
+            if (!extensionesPermitidas.Contains(extension))
+            {
+                return BadRequest("Formato de imagen no permitido.");
+            }
+
+            if (foto.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest("La imagen no puede superar los 5 MB.");
+            }
+
+            var webRoot = _env.WebRootPath;
+
+            if (string.IsNullOrWhiteSpace(webRoot))
+            {
+                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+            }
+
+            var carpeta = Path.Combine(webRoot, "fotos-Empleado");
+
+            Directory.CreateDirectory(carpeta);
+
+            var nombreArchivo = $"empleado_{id}_{Guid.NewGuid()}{extension}";
+            var rutaArchivo = Path.Combine(carpeta, nombreArchivo);
+
+            using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+            {
+                await foto.CopyToAsync(stream);
+            }
+
+            empleado.FotoUrl = $"/fotos-Empleado/{nombreArchivo}";
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                mensaje = "Foto subida correctamente.",
+                fotoUrl = empleado.FotoUrl
+            });
+        }
+
     }
 }
