@@ -3,8 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+
+
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 builder.Services.AddAuthentication(options =>
 {
