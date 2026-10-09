@@ -15,19 +15,29 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    var issuer = builder.Configuration["JwtSettings:Issuer"];
-    
-    options.Authority = issuer;
-    options.RequireHttpsMetadata = true;
+    options.Authority = builder.Configuration["JwtSettings:Issuer"];
 
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        ValidateIssuer = false, 
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
         ValidateAudience = true,
-        ValidAudience = builder.Configuration["JwtSettings:Audience"] ?? "authenticated",
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            // Esto imprimira en los logs de Render la razon exacta del 401
+            Console.WriteLine("---------------------------------------------");
+            Console.WriteLine($"[JWT RECHAZADO]: {context.Exception.Message}");
+            Console.WriteLine("---------------------------------------------");
+            return Task.CompletedTask;
+        }
     };
 });
 builder.Services.AddCors(options =>
