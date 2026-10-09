@@ -1,7 +1,35 @@
 using ApiTransporte.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
+    ?? throw new InvalidOperationException("Falta la clave JwtSettings:Secret en appsettings.json");
+var key = Encoding.UTF8.GetBytes(jwtSecret);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
 builder.Services.AddCors(options =>
 {
@@ -31,7 +59,6 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -41,6 +68,8 @@ app.UseCors("AllowIonic");
 
 app.UseStaticFiles();
 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
