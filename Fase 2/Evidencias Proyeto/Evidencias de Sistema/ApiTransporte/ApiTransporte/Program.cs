@@ -17,8 +17,14 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    var issuer = builder.Configuration["JwtSettings:Issuer"];
+    var issuer = builder.Configuration["JwtSettings:Issuer"] ?? "";
     
+    // Si la variable en Render viene sin "https://", se lo anteponemos explícitamente
+    if (!string.IsNullOrEmpty(issuer) && !issuer.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+    {
+        issuer = "https://" + issuer.TrimStart('/');
+    }
+
     options.Authority = issuer;
     options.RequireHttpsMetadata = true;
 
