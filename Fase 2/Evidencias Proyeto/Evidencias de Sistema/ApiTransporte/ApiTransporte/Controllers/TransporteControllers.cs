@@ -142,6 +142,7 @@ namespace ApiTransporte.Controllers
         [HttpPost("{id}/foto")]
         public async Task<IActionResult> SubirFotoEmpleado(int id, IFormFile foto)
         {
+            // _context.Empleados coincide con DbSet<Empleados> Empleados en AppDbContext
             var empleado = await _context.Empleados.FindAsync(id);
 
             if (empleado == null)
