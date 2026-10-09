@@ -121,7 +121,7 @@ export class AgregarVehiculoPage {
 
                 alert('Vehículo y foto agregados correctamente');
 
-                this.router.navigate(['/home'], {
+                this.router.navigate(['/ListarVehiculos'], {
                   queryParams: { refresh: new Date().getTime() }
                 });
 
@@ -134,7 +134,7 @@ export class AgregarVehiculoPage {
                   'El vehículo fue creado, pero hubo un error al subir la foto.'
                 );
 
-                this.router.navigate(['/home'], {
+                this.router.navigate(['./ListarVehiculos'], {
                   queryParams: { refresh: new Date().getTime() }
                 });
 
@@ -143,7 +143,7 @@ export class AgregarVehiculoPage {
 
         } else {
           alert('Vehículo agregado correctamente');
-          this.router.navigate(['/home'], {
+          this.router.navigate(['./ListarVehiculos'], {
             queryParams: { refresh: new Date().getTime() }
           });
 

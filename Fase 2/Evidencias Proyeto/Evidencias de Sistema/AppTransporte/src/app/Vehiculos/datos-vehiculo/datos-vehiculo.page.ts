@@ -89,7 +89,7 @@ export class DatosVehiculoPage implements OnInit {
     this.vehiculoService.eliminarVehiculo(this.vehiculo.idVehiculo).subscribe({
       next: () => {
         alert('Vehículo eliminado correctamente');
-        window.location.href = '/home';
+        window.location.href = './ListarVehiculos'; // Redirige a la página de vehículos después de eliminar
       },
       error: (error) => {
         console.error('Error al eliminar:', error);
