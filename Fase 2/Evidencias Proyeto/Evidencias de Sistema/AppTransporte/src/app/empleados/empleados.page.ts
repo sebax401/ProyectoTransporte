@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 import {
   IonContent,
@@ -62,6 +63,8 @@ export class EmpleadosPage implements OnInit {
   empleado: Empleado = this.empleadoVacio();
 
   editando = false;
+  fotoPreview: string | null = null;
+  fotoBlob: Blob | null = null;
 
   constructor(
     private empleadoService: EmpleadoService
@@ -70,6 +73,29 @@ export class EmpleadosPage implements OnInit {
   ngOnInit() {
     this.cargarEmpleados();
   }
+  async tomarFoto() {
+    try {
+      const foto = await Camera.getPhoto({
+        quality: 80,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera
+      });
+
+      if (foto.webPath) {
+        this.fotoPreview = foto.webPath;
+
+        const respuesta = await fetch(foto.webPath);
+        this.fotoBlob = await respuesta.blob();
+
+        console.log('Foto preparada:', this.fotoBlob);
+      }
+    } catch (error) {
+      console.error('Error al tomar la foto:', error);
+    }
+  }
+
+
 
   empleadoVacio(): Empleado {
     return {
@@ -83,7 +109,8 @@ export class EmpleadosPage implements OnInit {
       fechaIngreso: new Date().toISOString().split('T')[0],
       fechaTermino: null,
       razonDespido: null,
-      observaciones: null
+      observaciones: null,
+      fotoUrl: null,
     };
   }
 
@@ -104,8 +131,7 @@ export class EmpleadosPage implements OnInit {
       });
   }
 
-  guardarEmpleado() {
-
+ guardarEmpleado() {
     if (
       !this.empleado.nombre ||
       !this.empleado.apellido ||
@@ -118,54 +144,59 @@ export class EmpleadosPage implements OnInit {
     }
 
     if (this.editando) {
-
       this.empleadoService
-        .modificarEmpleado(
-          this.empleado.idEmpleado,
-          this.empleado
-        )
+        .modificarEmpleado(this.empleado.idEmpleado, this.empleado)
         .subscribe({
           next: () => {
-
-            alert('Empleado actualizado correctamente');
-
-            this.cancelarEdicion();
-
-            this.cargarEmpleados();
+            if (this.fotoBlob) {
+              this.subirFoto(this.empleado.idEmpleado);
+            } else {
+              alert('Empleado actualizado correctamente');
+              this.cancelarEdicion();
+              this.cargarEmpleados();
+            }
           },
-
           error: (error) => {
-            console.error(
-              'Error al modificar empleado',
-              error
-            );
+            console.error('Error al modificar empleado', error);
           }
         });
-
     } else {
+      this.empleadoService.crearEmpleado(this.empleado).subscribe({
+        next: (empCreado: any) => {
+          const id = empCreado?.idEmpleado || empCreado?.id;
 
-      this.empleadoService
-        .crearEmpleado(this.empleado)
-        .subscribe({
-          next: () => {
-
+          if (this.fotoBlob && id) {
+            this.subirFoto(id);
+          } else {
             alert('Empleado registrado correctamente');
-
-            this.empleado = this.empleadoVacio();
-
+            this.cancelarEdicion();
             this.cargarEmpleados();
-          },
-
-          error: (error) => {
-            console.error(
-              'Error al registrar empleado',
-              error
-            );
           }
-        });
+        },
+        error: (error) => {
+          console.error('Error al registrar empleado', error);
+        }
+      });
     }
   }
 
+  subirFoto(idEmpleado: number) {
+    if (!this.fotoBlob) return;
+
+    this.empleadoService.subirFotoEmpleado(idEmpleado, this.fotoBlob).subscribe({
+      next: () => {
+        alert('Empleado y foto guardados correctamente');
+        this.cancelarEdicion();
+        this.cargarEmpleados();
+      },
+      error: (error: any) => {
+        console.error('Error al subir la foto:', error);
+        alert('Se guardó el empleado, pero hubo un problema al subir la foto.');
+        this.cancelarEdicion();
+        this.cargarEmpleados();
+      }
+    });
+  }
   editarEmpleado(empleado: Empleado) {
 
     this.empleado = {
@@ -176,11 +207,11 @@ export class EmpleadosPage implements OnInit {
   }
 
   cancelarEdicion() {
-
-    this.empleado = this.empleadoVacio();
-
-    this.editando = false;
-  }
+      this.empleado = this.empleadoVacio();
+      this.fotoPreview = null;
+      this.fotoBlob = null;
+      this.editando = false;
+    }
 
   eliminarEmpleado(empleado: Empleado) {
 

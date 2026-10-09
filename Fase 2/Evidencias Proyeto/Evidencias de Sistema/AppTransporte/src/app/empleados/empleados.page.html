@@ -1,16 +1,15 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="primary">
     <ion-title>Empleados</ion-title>
-      <ion-buttons slot="end">
-        <ion-menu-button></ion-menu-button>
-      </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
 
   <ion-card>
-
     <ion-card-header>
       <ion-card-title>
         {{ editando ? 'Modificar empleado' : 'Registrar empleado' }}
@@ -20,134 +19,92 @@
     <ion-card-content>
 
       <ion-item>
-        <ion-input
-          label="Nombre"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.nombre">
+        <ion-input label="Nombre" labelPlacement="stacked" [(ngModel)]="empleado.nombre">
         </ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-input
-          label="Apellido"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.apellido">
+        <ion-input label="Apellido" labelPlacement="stacked" [(ngModel)]="empleado.apellido">
         </ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-input
-          label="RUT"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.rut">
+        <ion-input label="RUT" labelPlacement="stacked" [(ngModel)]="empleado.rut">
         </ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-input
-          label="Cargo"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.cargo">
+        <ion-input label="Cargo" labelPlacement="stacked" [(ngModel)]="empleado.cargo">
         </ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-select
-          label="Tipo de contrato"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.tipoContrato">
-
-          <ion-select-option value="Indefinido">
-            Indefinido
-          </ion-select-option>
-
-          <ion-select-option value="Plazo fijo">
-            Plazo fijo
-          </ion-select-option>
-
-          <ion-select-option value="Informal">
-            Informal
-          </ion-select-option>
-
+        <ion-select label="Tipo de contrato" labelPlacement="stacked" [(ngModel)]="empleado.tipoContrato">
+          <ion-select-option value="Indefinido">Indefinido</ion-select-option>
+          <ion-select-option value="Plazo fijo">Plazo fijo</ion-select-option>
+          <ion-select-option value="Informal">Informal</ion-select-option>
         </ion-select>
       </ion-item>
 
       <ion-item>
-        <ion-select
-          label="Estado"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.estado">
-
-          <ion-select-option value="Activo">
-            Activo
-          </ion-select-option>
-
-          <ion-select-option value="Despedido">
-            Despedido
-          </ion-select-option>
-
+        <ion-select label="Estado" labelPlacement="stacked" [(ngModel)]="empleado.estado">
+          <ion-select-option value="Activo">Activo</ion-select-option>
+          <ion-select-option value="Despedido">Despedido</ion-select-option>
         </ion-select>
       </ion-item>
 
       <ion-item>
-        <ion-input
-          type="date"
-          label="Fecha de ingreso"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.fechaIngreso">
+        <ion-input type="date" label="Fecha de ingreso" labelPlacement="stacked" [(ngModel)]="empleado.fechaIngreso">
         </ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-input
-          type="date"
-          label="Fecha de término"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.fechaTermino">
+        <ion-input type="date" label="Fecha de término" labelPlacement="stacked" [(ngModel)]="empleado.fechaTermino">
         </ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-input
-          label="Razón de despido"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.razonDespido">
+        <ion-input label="Razón de despido" labelPlacement="stacked" [(ngModel)]="empleado.razonDespido">
         </ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-input
-          label="Observaciones"
-          labelPlacement="stacked"
-          [(ngModel)]="empleado.observaciones">
+        <ion-input label="Observaciones" labelPlacement="stacked" [(ngModel)]="empleado.observaciones">
         </ion-input>
       </ion-item>
 
-      <ion-button
-        expand="block"
-        (click)="guardarEmpleado()">
-
-        {{ editando ? 'Guardar cambios' : 'Registrar empleado' }}
-
+      <!-- BOTÓN PARA TOMAR LA FOTO -->
+      <ion-button expand="block" fill="outline" color="medium" (click)="tomarFoto()" style="margin-top: 15px;">
+        Tomar foto del empleado
       </ion-button>
 
-      <ion-button
-        *ngIf="editando"
-        expand="block"
-        fill="outline"
-        (click)="cancelarEdicion()">
+      <!-- VISTA PREVIA DE LA FOTO TOMADA -->
+      <ion-item lines="none" *ngIf="fotoPreview">
+        <div style="width: 100%; margin-top: 10px; text-align: center;">
+          <p><strong>Vista previa:</strong></p>
+          <img [src]="fotoPreview" alt="Foto del empleado" style="
+            width: 100%;
+            max-width: 300px;
+            border-radius: 12px;
+            object-fit: cover;
+          ">
+        </div>
+      </ion-item>
 
+      <ion-button expand="block" (click)="guardarEmpleado()" style="margin-top: 20px;">
+        {{ editando ? 'Guardar cambios' : 'Registrar empleado' }}
+      </ion-button>
+
+      <ion-button *ngIf="editando" expand="block" fill="outline" (click)="cancelarEdicion()">
         Cancelar
-
       </ion-button>
 
     </ion-card-content>
-
   </ion-card>
 
 
+  <!-- LISTA DE EMPLEADOS REGISTRADOS -->
   <ion-card>
-
     <ion-card-header>
       <ion-card-title>
         Empleados registrados
@@ -156,44 +113,35 @@
 
     <ion-card-content>
 
-      <div *ngFor="let empleado of empleados">
+      <div *ngFor="let emp of empleados">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <h2 style="margin-top: 0;">{{ emp.nombre }} {{ emp.apellido }}</h2>
+            <p>RUT: {{ emp.rut }}</p>
+            <p>Cargo: {{ emp.cargo }}</p>
+            <p>Contrato: {{ emp.tipoContrato }}</p>
+            <p>Estado: {{ emp.estado }}</p>
+          </div>
 
-        <h2>
-          {{ empleado.nombre }}
-          {{ empleado.apellido }}
-        </h2>
+          <div *ngIf="emp.fotoUrl">
+            <img
+              [src]="emp.fotoUrl.startsWith('http') ? emp.fotoUrl : 'https://proyectotransporte.onrender.com' + emp.fotoUrl"
+              alt="Foto de {{ emp.nombre }}" style="
+                width: 90px;
+                height: 90px;
+                border-radius: 12px;
+                object-fit: cover;
+                border: 1px solid #ddd;
+              ">
+          </div>
 
-        <p>
-          RUT: {{ empleado.rut }}
-        </p>
-
-        <p>
-          Cargo: {{ empleado.cargo }}
-        </p>
-
-        <p>
-          Contrato: {{ empleado.tipoContrato }}
-        </p>
-
-        <p>
-          Estado: {{ empleado.estado }}
-        </p>
-
-        <ion-button
-          size="small"
-          (click)="editarEmpleado(empleado)">
-
+        </div>
+        <ion-button size="small" (click)="editarEmpleado(emp)">
           Modificar
-
         </ion-button>
 
-        <ion-button
-          size="small"
-          color="danger"
-          (click)="eliminarEmpleado(empleado)">
-
+        <ion-button size="small" color="danger" (click)="eliminarEmpleado(emp)">
           Eliminar
-
         </ion-button>
 
         <hr>
@@ -201,7 +149,6 @@
       </div>
 
     </ion-card-content>
-
   </ion-card>
 
 </ion-content>

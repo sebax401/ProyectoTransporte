@@ -14,6 +14,7 @@ export interface Empleado {
   fechaTermino: string | null;
   razonDespido: string | null;
   observaciones: string | null;
+  fotoUrl: string | null;
 }
 
 @Injectable({
@@ -56,6 +57,15 @@ export class EmpleadoService {
   eliminarEmpleado(id: number): Observable<void> {
     return this.http.delete<void>(
       `${this.apiUrl}/${id}`
+    );
+  }
+  subirFotoEmpleado(idEmpleado: number, foto: Blob): Observable<any> {
+    const formData = new FormData();
+    formData.append('foto', foto, `empleado_${idEmpleado}.jpg`);
+
+    return this.http.post(
+      `${this.apiUrl}/${idEmpleado}/foto`,
+      formData
     );
   }
 }
