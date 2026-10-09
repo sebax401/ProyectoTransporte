@@ -10,10 +10,12 @@ namespace ApiTransporte.Controllers
     public class EmpleadoController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public EmpleadoController(AppDbContext context)
+        public EmpleadoController(AppDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         
