@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -27,19 +28,8 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
-        {
-            // Esto imprimira en los logs de Render la razon exacta del 401
-            Console.WriteLine("---------------------------------------------");
-            Console.WriteLine($"[JWT RECHAZADO]: {context.Exception.Message}");
-            Console.WriteLine("---------------------------------------------");
-            return Task.CompletedTask;
-        }
-    };
 });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowIonic", policy =>
