@@ -1,11 +1,12 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header class="ion-no-border ion-hide-md-up">
+  <ion-toolbar >
     <ion-title>Iniciar Sesión</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div class="login-container">
+
+  <div class="ion-hide-md-up mobile-container">
     <h2>Bienvenido</h2>
 
     <ion-item>
@@ -21,5 +22,40 @@
     <ion-button expand="block" class="ion-margin-top" (click)="onLogin()">
       Ingresar
     </ion-button>
+  </div>
+
+
+ <div class="ion-hide-md-down desktop-container">
+    <ion-grid class="ion-full-height">
+      <ion-row class="ion-justify-content-center ion-align-items-center ion-full-height">
+        <ion-col size-md="6" size-lg="4">
+          
+          <ion-card class="desktop-card">
+            <ion-card-header>
+              <ion-card-title class="ion-text-center">Iniciar Sesión</ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+              <form (ngSubmit)="onLogin()">
+                <ion-item lines="none" class="custom-input">
+                  <ion-label position="stacked">Correo Electrónico</ion-label>
+                  <ion-input type="email" [(ngModel)]="email" name="email" placeholder="ejemplo@correo.com"></ion-input>
+                </ion-item>
+
+                <ion-item lines="none" class="custom-input">
+                  <ion-label position="stacked">Contraseña</ion-label>
+                  <ion-input type="password" [(ngModel)]="password" name="password" placeholder="******"></ion-input>
+                </ion-item>
+
+                <ion-button expand="block"class="submit-btn" type="submit">
+                  Ingresar
+                </ion-button>
+              </form>
+            </ion-card-content>
+          </ion-card>
+
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </div>
 </ion-content>

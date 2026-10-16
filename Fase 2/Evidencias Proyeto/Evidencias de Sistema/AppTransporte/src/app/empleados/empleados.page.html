@@ -1,15 +1,28 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Empleados</ion-title>
-    <ion-buttons slot="end">
+  <ion-toolbar>
+
+    <ion-title slot="start" class="ion-hide-md-down" >
+      <a routerLink="/Home" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
+      <a routerLink="/ListarVehiculos" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
+      <a routerLink="/empleados" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
+    </ion-title>
+    
+    <div slot="end" class="ion-hide-md-down" style="padding-right: 16px;">
+      <a (click)="logout()" style="color: white; text-decoration: none; font-weight: normal; cursor: pointer;">Cerrar Sesión</a>
+    </div>
+    <ion-title class="ion-hide-md-up">Empleados</ion-title>
+
+    <ion-buttons slot="end" class="ion-hide-md-up">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
 
-  <ion-card>
+  <div style="width: 100%; max-width: 900px; margin: 0 auto;">
+  <ion-card style="border-radius: 20px; border: 2px solid green;">
     <ion-card-header>
       <ion-card-title>
         {{ editando ? 'Modificar empleado' : 'Registrar empleado' }}
@@ -102,53 +115,72 @@
     </ion-card-content>
   </ion-card>
 
-
+  
   <!-- LISTA DE EMPLEADOS REGISTRADOS -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>
+  
+  <div style="border-radius: 20px; border: 2px solid green;">
+      
+      <h2 style="font-size: 1.5rem; font-weight: bold; margin: 0 0 1rem 0; text-align: center; color: #0f172a; margin-top: 20px;">
         Empleados registrados
-      </ion-card-title>
-    </ion-card-header>
+      </h2>
 
-    <ion-card-content>
+      <ion-grid class="ion-no-padding">
+        <ion-row>
 
-      <div *ngFor="let emp of empleados">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-          <div>
-            <h2 style="margin-top: 0;">{{ emp.nombre }} {{ emp.apellido }}</h2>
-            <p>RUT: {{ emp.rut }}</p>
-            <p>Cargo: {{ emp.cargo }}</p>
-            <p>Contrato: {{ emp.tipoContrato }}</p>
-            <p>Estado: {{ emp.estado }}</p>
-          </div>
+          <ion-col size="12" size-md="6" *ngFor="let emp of empleados">
+            <div style="padding: 8px;">
+              
+              <div style="background: #ffffff; border-radius: 16px; border: 1.5px solid #e2e8f0; padding: 1rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);">
+                
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                  <div>
+                    <h3 style="margin: 0 0 8px 0; font-size: 1.25rem; font-weight: bold; color: #0f172a;">
+                      {{ emp.nombre }} {{ emp.apellido }}
+                    </h3>
+                    <p style="margin: 3px 0; font-size: 0.95rem; color: #334155;"><strong>RUT:</strong> {{ emp.rut }}</p>
+                    <p style="margin: 3px 0; font-size: 0.95rem; color: #334155;"><strong>Cargo:</strong> {{ emp.cargo }}</p>
+                    <p style="margin: 3px 0; font-size: 0.95rem; color: #334155;"><strong>Contrato:</strong> {{ emp.tipoContrato }}</p>
+                    <p style="margin: 3px 0; font-size: 0.95rem; color: #334155;"><strong>Estado:</strong> {{ emp.estado }}</p>
+                  </div>
 
-          <div *ngIf="emp.fotoUrl">
-            <img
-              [src]="emp.fotoUrl.startsWith('http') ? emp.fotoUrl : 'https://proyectotransporte.onrender.com' + emp.fotoUrl"
-              alt="Foto de {{ emp.nombre }}" style="
-                width: 90px;
-                height: 90px;
-                border-radius: 12px;
-                object-fit: cover;
-                border: 1px solid #ddd;
-              ">
-          </div>
+                  <!-- FOTO DE EMPLEADO movil -->
+                  <div *ngIf="emp.fotoUrl" style="flex-shrink: 0;" class="ion-hide-md-up">
+                    <img
+                      [src]="emp.fotoUrl.startsWith('http') ? emp.fotoUrl : 'https://proyectotransporte.onrender.com' + emp.fotoUrl"
+                      alt="Foto de {{ emp.nombre }}" 
+                      style="width: 100px; height: 100px; border-radius: 12px; object-fit: cover; border: 1px solid #ddd;"
+                    >
+                  </div>
+                  <!-- FOTO DE EMPLEADO Escritorio -->
+                  <div *ngIf="emp.fotoUrl" style="flex-shrink: 0;" class="ion-hide-md-down">
+                    <img
+                      [src]="emp.fotoUrl.startsWith('http') ? emp.fotoUrl : 'https://proyectotransporte.onrender.com' + emp.fotoUrl"
+                      alt="Foto de {{ emp.nombre }}" 
+                      style="width: 200px; height: 200px; border-radius: 12px; object-fit: cover; border: 1px solid #ddd;"
+                    >
+                  </div>
+                </div>
 
-        </div>
-        <ion-button size="small" (click)="editarEmpleado(emp)">
-          Modificar
-        </ion-button>
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                  <ion-button size="small" fill="outline" (click)="editarEmpleado(emp)" style="font-weight: bold;">
+                    Modificar
+                  </ion-button>
 
-        <ion-button size="small" color="danger" (click)="eliminarEmpleado(emp)">
-          Eliminar
-        </ion-button>
+                  <ion-button size="small" color="danger" fill="clear" (click)="eliminarEmpleado(emp)" style="font-weight: bold;">
+                    Eliminar
+                  </ion-button>
+                </div>
 
-        <hr>
+              </div>
 
-      </div>
+            </div>
+          </ion-col>
 
-    </ion-card-content>
-  </ion-card>
+        </ion-row>
+      </ion-grid>
+
+    </div>
+
+  </div>
 
 </ion-content>

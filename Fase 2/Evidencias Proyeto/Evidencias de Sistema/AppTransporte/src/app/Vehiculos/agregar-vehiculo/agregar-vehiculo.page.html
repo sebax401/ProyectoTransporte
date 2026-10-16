@@ -1,14 +1,29 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
+
+   <ion-title slot="start" class="ion-hide-md-down" >
+      <a routerLink="/Home" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
+      <a routerLink="/ListarVehiculos" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
+      <a routerLink="/empleados" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
+    </ion-title>
+    
+    <div slot="end" class="ion-hide-md-down" style="padding-right: 16px;">
+        <a (click)="logout()" style="color: white; text-decoration: none; font-weight: normal; cursor: pointer;">Cerrar Sesión</a>
+    </div>
+
+    <ion-buttons class="ion-hide-md-up"slot="start">
       <ion-back-button defaultHref="./ListarVehiculos"></ion-back-button>
     </ion-buttons>
-    <ion-title>Agregar Vehículo</ion-title>
+
+    <ion-title class="ion-hide-md-up">Agregar Vehículo</ion-title>
+
   </ion-toolbar>
 </ion-header>
 
+
 <ion-content class="ion-padding">
-<div class="form-card">
+   <div style="width: 100%; max-width: 900px; margin: 0 auto;">
+<div class="form-card" style="margin-top: 20px; padding: 20px; border-radius: 12px;  background-color: White;">
   <ion-item>
     <ion-label position="floating">Patente</ion-label>
     <ion-input [(ngModel)]="vehiculo.patente"></ion-input>
@@ -37,7 +52,7 @@
   <ion-item>
     <ion-label position="floating">Estado DPF</ion-label>
     <ion-input [(ngModel)]="vehiculo.estadoDpf"></ion-input>
-  </ion-item><br><br>
+  </ion-item>
   <div style="margin-top: 20px; text-align: center;">
 
   <ion-button expand="block" (click)="tomarFoto()">
@@ -86,5 +101,5 @@
     Guardar vehículo
   </ion-button>
 </div>
-
+</div>
 </ion-content>

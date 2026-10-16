@@ -20,14 +20,17 @@ import {
   IonCardTitle,
   IonBackButton,
   IonMenuButton,
-  IonButtons
+  IonButtons,
+  IonGrid,
+  IonRow,
+  IonCol
+  
+  
 } from '@ionic/angular/standalone';
 import { BarralateralComponent } from '../BarraLateral/barralateral.component';
-import {
-  Empleado,
-  EmpleadoService
-} from '../services/empleado';
-
+import {Empleado,EmpleadoService,} from '../services/empleado';
+import { AuthService } from '../services/auth.service';
+import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-empleados',
   templateUrl: './empleados.page.html',
@@ -53,7 +56,12 @@ import {
     IonBackButton,
     IonMenuButton,
     IonButtons,
-    BarralateralComponent
+    BarralateralComponent,
+    RouterLink,
+    IonGrid,
+    IonRow,
+    IonCol
+
   ]
 })
 export class EmpleadosPage implements OnInit {
@@ -66,7 +74,9 @@ export class EmpleadosPage implements OnInit {
   fotoBlob: Blob | null = null;
 
   constructor(
-    private empleadoService: EmpleadoService
+    private empleadoService: EmpleadoService,
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -232,4 +242,13 @@ export class EmpleadosPage implements OnInit {
       }
     });
   }
+  async logout() {
+    try {
+      await this.authService.logout(); 
+      this.router.navigateByUrl('/login', { replaceUrl: true }); 
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  }
+
 }

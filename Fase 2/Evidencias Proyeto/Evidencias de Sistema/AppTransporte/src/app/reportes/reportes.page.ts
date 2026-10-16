@@ -6,14 +6,16 @@ import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonLabel, IonIt
 import { Reporte, ReporteService } from '../services/reporte';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
-
+import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-reportes',
   templateUrl: './reportes.page.html',
   styleUrls: ['./reportes.page.scss'],
   standalone: true,
   imports: [  IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonButton, IonLabel, IonItem,
-  IonInput, IonCard, IonCardContent, IonCardTitle, IonCardHeader, IonAccordion, IonAccordionGroup, IonSelect, IonSelectOption, IonButtons, IonBackButton ]
+  IonInput, IonCard, IonCardContent, IonCardTitle, IonCardHeader, IonAccordion, IonAccordionGroup, IonSelect, IonSelectOption, IonButtons, IonBackButton,
+  RouterLink ]
 })
 
 export class ReportesPage implements OnInit {
@@ -35,7 +37,7 @@ export class ReportesPage implements OnInit {
 
   reportes: Reporte[] = [];
 
-  constructor(  private reporteService: ReporteService, private route: ActivatedRoute, private authService: AuthService,) { 
+  constructor(  private reporteService: ReporteService, private route: ActivatedRoute, private authService: AuthService,private router: Router,) { 
   }
 
   repuestoEditando: number | null = null;
@@ -145,5 +147,13 @@ export class ReportesPage implements OnInit {
         console.error('Error al guardar repuesto', error);
       }
     });
+  }
+  async logout() {
+    try {
+      await this.authService.logout(); 
+      this.router.navigateByUrl('/login', { replaceUrl: true }); 
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   }
 }

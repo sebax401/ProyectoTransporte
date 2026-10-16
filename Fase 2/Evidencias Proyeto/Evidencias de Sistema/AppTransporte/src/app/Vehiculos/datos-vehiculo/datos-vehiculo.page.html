@@ -1,92 +1,357 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
+
+   <ion-title slot="start" class="ion-hide-md-down" >
+      <a routerLink="/Home" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
+      <a routerLink="/ListarVehiculos" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
+      <a routerLink="/empleados" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
+    </ion-title>
+    
+    <div slot="end" class="ion-hide-md-down" style="padding-right: 16px;">
+        <a (click)="logout()" style="color: white; text-decoration: none; font-weight: normal; cursor: pointer;">Cerrar Sesión</a>
+    </div>
+
+    <ion-buttons class="ion-hide-md-up"slot="start">
       <ion-back-button defaultHref="./ListarVehiculos"></ion-back-button>
     </ion-buttons>
-    <ion-title>Detalle Vehículo</ion-title>
+
+    <ion-title class="ion-hide-md-up">Detalle Vehículo</ion-title>
+    
   </ion-toolbar>
 </ion-header>
+
+
 <ion-content *ngIf="vehiculo" style="height: 300px">
-  <ion-card>
+  <div class="ion-hide-md-up mobile-container">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ vehiculo.patente }}</ion-card-title>
+        <ion-card-subtitle>{{ vehiculo.modelo }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <div style="margin-left: 85%; margin-top: -15%;">
+        <ion-button (click)="eliminarVehiculo()" color = "danger">
+          <ion-icon slot="icon-only" name="trash-bin-outline"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <ion-card-content>
+        <p><strong>Marca:</strong> {{ vehiculo.marca }}</p>
+
+        <p><strong>Año:</strong> {{ vehiculo.anio }}</p>
+
+        <p><strong>Próximo Km:</strong> {{ vehiculo.proximoKilometraje }}</p>
+
+        <p><strong>Estado DPF:</strong> {{ vehiculo.estadoDpf }}</p>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <strong><p>Estado de revisión:</p></strong>
+          <ion-chip color="success" *ngIf="vehiculo.estadoRevision === 'Vigente'">
+            <ion-label>Vigente</ion-label>
+          </ion-chip>
+          <ion-chip color="danger" *ngIf="vehiculo.estadoRevision === 'Vencido'">
+            <ion-label>Vencido</ion-label>
+          </ion-chip>
+        </div>
+
+        <p><strong>Estado Extintor:</strong> {{ vehiculo.estadoExtintor }}</p>
+
+        <p><strong>Observación:</strong> {{ vehiculo.observacion }}</p>
+        
+        <ion-accordion-group>
+          <ion-accordion value="first">
+            <ion-item slot="header" color="light">
+              <ion-label>Modificar Vehículo</ion-label>
+            </ion-item>
+            <div class="ion-padding" slot="content">
+
+              <ion-item>
+                <ion-label position="stacked">Próximo kilometraje</ion-label>
+                <ion-input type="number" [(ngModel)]="vehiculo.proximoKilometraje"></ion-input>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="stacked">Estado DPF</ion-label>
+                <ion-input [(ngModel)]="vehiculo.estadoDpf"></ion-input>
+              </ion-item>
+              
+              <ion-item lines="none" style="border-bottom: 1px solid #ddd;">
+                <ion-label position="stacked">Fecha vencimiento revisión</ion-label>
+                <ion-input
+                  type="date"
+                  [(ngModel)]="vehiculo.fechaRevisionTecnica"
+                  (ionChange)="actualizarEstadoRevision()">
+                </ion-input>
+              </ion-item>
+              
+              <ion-item>
+                <ion-select label="Estado extintor" placeholder="Seleccione" [(ngModel)]="vehiculo.estadoExtintor">
+                  <ion-select-option value="Vigente">Vigente</ion-select-option>
+                  <ion-select-option value="Vencido">Vencido</ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="stacked">Observación</ion-label>
+                <ion-input [(ngModel)]="vehiculo.observacion"></ion-input>
+              </ion-item><br>
+
+              <ion-button expand="block" color="warning" (click)="modificarVehiculo()">
+                Modificar vehículo
+              </ion-button>
+            </div>
+          </ion-accordion>
+        </ion-accordion-group>
+        <ion-button [routerLink]="['/reportes', vehiculo.idVehiculo]">
+          Ver reportes
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div class="ion-hide-md-down desktop-container" style="width: 100%; max-width: 2000px; margin: 2rem auto;">
+    <ion-grid class="ion-no-padding">
+      <ion-row class="ion-align-items-stretch">
+
+        <!-- CAJA IZQUIERDA: Datos del vehículo y modificación -->
+        <ion-col size="12" size-md="6" style="padding: 10px;">
+          <div style="background: #ffffff;  border-radius: 20px; padding: 1.5rem; ">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h1 style="font-size: 2rem; font-weight: 800; margin: 0; color: #000000;">{{ vehiculo.patente }}</h1>
+              <ion-button (click)="eliminarVehiculo()" color="danger" size="small">
+                <ion-icon slot="icon-only" name="trash-bin-outline"></ion-icon>
+              </ion-button>
+            </div>
+
+            <h2 style="font-size: 1.2rem; color: #555; margin-top: 0;">{{ vehiculo.marca }} - {{ vehiculo.modelo }} ({{ vehiculo.anio }})</h2>
+
+            <div style="font-size: 1.05rem; line-height: 1.6; color: #1a1a1a;">
+              <p><strong>Próximo Km:</strong> {{ vehiculo.proximoKilometraje }}</p>
+              <p><strong>Estado DPF:</strong> {{ vehiculo.estadoDpf }}</p>
+              
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <strong>Estado de revisión:</strong>
+                <ion-chip color="success" *ngIf="vehiculo.estadoRevision === 'Vigente'">
+                  <ion-label>Vigente</ion-label>
+                </ion-chip>
+                <ion-chip color="danger" *ngIf="vehiculo.estadoRevision === 'Vencido'">
+                  <ion-label>Vencido</ion-label>
+                </ion-chip>
+              </div>
+
+              <p><strong>Estado Extintor:</strong> {{ vehiculo.estadoExtintor }}</p>
+              <p><strong>Observación:</strong> {{ vehiculo.observacion }}</p>
+            </div>
+
+            
+            <ion-accordion-group style="margin-top: 1.5rem;">
+              <ion-accordion value="first">
+                <ion-item slot="header" color="light">
+                  <ion-label>Modificar Vehículo</ion-label>
+                </ion-item>
+                <div class="ion-padding" slot="content">
+                  <ion-item lines="none" style="border-bottom: 1px solid #ddd;">
+                    <ion-label position="stacked">Próximo kilometraje</ion-label>
+                    <ion-input type="number" [(ngModel)]="vehiculo.proximoKilometraje"></ion-input>
+                  </ion-item>
+
+                  <ion-item lines="none" style="border-bottom: 1px solid #ddd;">
+                    <ion-label position="stacked">Estado DPF</ion-label>
+                    <ion-input [(ngModel)]="vehiculo.estadoDpf"></ion-input>
+                  </ion-item>
+                  
+                  <ion-item lines="none" style="border-bottom: 1px solid #ddd;">
+                    <ion-label position="stacked">Fecha vencimiento revisión</ion-label>
+                    <ion-input
+                      type="date"
+                      [(ngModel)]="vehiculo.fechaRevisionTecnica"
+                      (ionChange)="actualizarEstadoRevision()">
+                    </ion-input>
+                  </ion-item>
+                  
+                  <ion-item lines="none" style="border-bottom: 1px solid #ddd;">
+                    <ion-select label="Estado extintor" placeholder="Seleccione" [(ngModel)]="vehiculo.estadoExtintor">
+                      <ion-select-option value="Vigente">Vigente</ion-select-option>
+                      <ion-select-option value="Vencido">Vencido</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+
+                  <ion-item lines="none" style="border-bottom: 1px solid #ddd;">
+                    <ion-label position="stacked">Observación</ion-label>
+                    <ion-input [(ngModel)]="vehiculo.observacion"></ion-input>
+                  </ion-item><br>
+
+                  <ion-button expand="block" color="warning" (click)="modificarVehiculo()" style="font-weight: bold;">
+                    Modificar vehículo
+                  </ion-button>
+                </div>
+              </ion-accordion>
+            </ion-accordion-group>
+
+            <ion-button expand="block" [routerLink]="['/reportes', vehiculo.idVehiculo]" style="margin-top: 1rem; font-weight: bold;">
+              Ver reportes
+            </ion-button>
+
+          </div>
+        </ion-col>
+
+        <!-- CAJA DERECHA: Foto del Vehículo -->
+        <ion-col size="12" size-md="6" style="padding: 10px;">
+          <div style="background: #ffffff; border-radius: 20px; padding: 1.5rem; ">
+            
+            <img 
+              *ngIf="vehiculo.fotoUrl" 
+              [src]="'https://proyectotransporte.onrender.com' + vehiculo.fotoUrl" 
+              alt="Foto del vehículo"
+              style="width: 100%; height: 100%; max-height: 900px; object-fit: cover; border-radius: 12px;"
+            />
+
+            <!-- Icono grande si no hay foto -->
+            <div *ngIf="!vehiculo.fotoUrl" style="text-align: center;">
+              <ion-icon name="car-outline" style="font-size: 450px; color: #222222;"></ion-icon>
+              <p style="font-size: 1.2rem; color: #666; margin-top: 10px;">Sin foto de vehículo</p>
+            </div>
+
+          </div>
+        </ion-col>
+
+      </ion-row>
+    </ion-grid>
+  </div>
+
+
+  <div style="width: 100%; max-width: 2000px; margin: 2rem auto;" class="ion-hide-md-down desktop-container">
+    <ion-card class="section-card">
     <ion-card-header>
-      <ion-card-title>{{ vehiculo.patente }}</ion-card-title>
-      <ion-card-subtitle>{{ vehiculo.modelo }}</ion-card-subtitle>
+      <ion-card-title>Reportes</ion-card-title>
     </ion-card-header>
 
-    <div style="margin-left: 85%; margin-top: -15%;">
-      <ion-button (click)="eliminarVehiculo()" color = "danger">
-        <ion-icon slot="icon-only" name="trash-bin-outline"></ion-icon>
-      </ion-button>
-    </div>
-    
     <ion-card-content>
-      <p><strong>Marca:</strong> {{ vehiculo.marca }}</p>
 
-      <p><strong>Año:</strong> {{ vehiculo.anio }}</p>
-
-      <p><strong>Próximo Km:</strong> {{ vehiculo.proximoKilometraje }}</p>
-
-      <p><strong>Estado DPF:</strong> {{ vehiculo.estadoDpf }}</p>
-
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <strong><p>Estado de revisión:</p></strong>
-        <ion-chip color="success" *ngIf="vehiculo.estadoRevision === 'Vigente'">
-          <ion-label>Vigente</ion-label>
-        </ion-chip>
-        <ion-chip color="danger" *ngIf="vehiculo.estadoRevision === 'Vencido'">
-          <ion-label>Vencido</ion-label>
-        </ion-chip>
+      <div *ngIf="reportes.length === 0" class="empty-state">
+        No hay reportes registrados.
       </div>
 
-      <p><strong>Estado Extintor:</strong> {{ vehiculo.estadoExtintor }}</p>
+      <ion-card class="reporte-card" *ngFor="let reporte of reportes">
+        <ion-card-header>
+          <ion-card-title>{{ reporte.tipoReporte }}</ion-card-title>
+        </ion-card-header>
 
-      <p><strong>Observación:</strong> {{ vehiculo.observacion }}</p>
-      
-      <ion-accordion-group>
-        <ion-accordion value="first">
-          <ion-item slot="header" color="light">
-            <ion-label>Modificar Vehículo</ion-label>
-          </ion-item>
-          <div class="ion-padding" slot="content">
+        <ion-card-content>
+          <p>{{ reporte.descripcion }}</p>
+          <p><strong>Fecha:</strong> {{ reporte.fechaGeneracion | date:'dd/MM/yyyy' }}</p>
 
+          <p *ngIf="reporte.valorRepuesto === null" class="estado-pendiente">
+            Pendiente de repuesto
+          </p>
+
+          <p *ngIf="reporte.nombreRepuesto">
+            <strong>Repuesto:</strong> {{ reporte.nombreRepuesto }}
+          </p>
+
+          <p *ngIf="reporte.valorRepuesto !== null">
+            <strong>Valor:</strong> ${{ reporte.valorRepuesto }}
+          </p>
+
+          <p *ngIf="reporte.lugarCompra">
+            <strong>Lugar:</strong> {{ reporte.lugarCompra }}
+          </p>
+
+          <ion-button
+            *ngIf="reporte.valorRepuesto === null && repuestoEditando !== reporte.idReporte"
+            expand="block"
+            color="warning"
+            (click)="mostrarFormularioRepuesto(reporte)">
+            Agregar repuesto
+          </ion-button>
+
+          <div *ngIf="repuestoEditando === reporte.idReporte">
             <ion-item>
-              <ion-label position="stacked">Próximo kilometraje</ion-label>
-              <ion-input type="number" [(ngModel)]="vehiculo.proximoKilometraje"></ion-input>
+              <ion-label position="stacked">Nombre del repuesto</ion-label>
+              <ion-input [(ngModel)]="repuestoForm.nombreRepuesto"></ion-input>
             </ion-item>
 
             <ion-item>
-              <ion-label position="stacked">Estado DPF</ion-label>
-              <ion-input [(ngModel)]="vehiculo.estadoDpf"></ion-input>
-            </ion-item>
-            
-            <ion-item>
-              <ion-select label="Estado revisión" placeholder="Seleccione" [(ngModel)]="vehiculo.estadoRevision">
-                <ion-select-option value="Vigente">Vigente</ion-select-option>
-                <ion-select-option value="Vencido">Vencido</ion-select-option>
-              </ion-select>
-            </ion-item>
-            
-            <ion-item>
-              <ion-select label="Estado extintor" placeholder="Seleccione" [(ngModel)]="vehiculo.estadoExtintor">
-                <ion-select-option value="Vigente">Vigente</ion-select-option>
-                <ion-select-option value="Vencido">Vencido</ion-select-option>
-              </ion-select>
+              <ion-label position="stacked">Valor del repuesto</ion-label>
+              <ion-input type="number" [(ngModel)]="repuestoForm.valorRepuesto"></ion-input>
             </ion-item>
 
             <ion-item>
-              <ion-label position="stacked">Observación</ion-label>
-              <ion-input [(ngModel)]="vehiculo.observacion"></ion-input>
-            </ion-item><br>
+              <ion-label position="stacked">Lugar de compra</ion-label>
+              <ion-input [(ngModel)]="repuestoForm.lugarCompra"></ion-input>
+            </ion-item>
 
-            <ion-button expand="block" color="warning" (click)="modificarVehiculo()">
-              Modificar vehículo
+            <ion-button
+              expand="block"
+              color="success"
+              (click)="guardarRepuesto(reporte)">
+              Guardar repuesto
             </ion-button>
           </div>
-        </ion-accordion>
-      </ion-accordion-group>
-      <ion-button [routerLink]="['/reportes', vehiculo.idVehiculo]">
-        Ver reportes
-      </ion-button>
+        </ion-card-content>
+      </ion-card>
+
     </ion-card-content>
   </ion-card>
+
+  <ion-card class="section-card">
+    <ion-accordion-group>
+      <ion-accordion value="first">
+        <ion-item slot="header">
+          <ion-label>Generar Reporte</ion-label>
+        </ion-item>
+
+        <div class="ion-padding" slot="content">
+          <ion-item>
+            <ion-select
+              label="Tipo de Reporte"
+              placeholder="Seleccione"
+              [(ngModel)]="reporte.tipoReporte">
+              <ion-select-option value="falla">Falla</ion-select-option>
+              <ion-select-option value="mantencion">Mantención</ion-select-option>
+              <ion-select-option value="revision">Revisión Técnica</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item *ngIf="reporte.tipoReporte === 'falla'">
+            <ion-select label="Tipo de Falla" placeholder="Seleccione" [(ngModel)]="subTipo">
+              <ion-select-option value="Motor">Motor</ion-select-option>
+              <ion-select-option value="Frenos">Frenos</ion-select-option>
+              <ion-select-option value="Eléctrica">Eléctrica</ion-select-option>
+              <ion-select-option value="Batería">Batería</ion-select-option>
+              <ion-select-option value="Neumáticos">Neumáticos</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item *ngIf="reporte.tipoReporte === 'mantencion'">
+            <ion-select label="Tipo de Mantención" placeholder="Seleccione" [(ngModel)]="subTipo">
+              <ion-select-option value="Cambio de aceite">Cambio de Aceite</ion-select-option>
+              <ion-select-option value="Cambio de filtros">Cambio de Filtros</ion-select-option>
+              <ion-select-option value="Cambio de pastillas">Cambio de Pastillas</ion-select-option>
+              <ion-select-option value="Alineación">Alineación</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item *ngIf="reporte.tipoReporte === 'revision'">
+            <ion-select label="Tipo de Revisión" placeholder="Seleccione" [(ngModel)]="subTipo">
+              <ion-select-option value="Revisión técnica">Revisión Técnica</ion-select-option>
+              <ion-select-option value="Permiso de circulación">Permiso de Circulación</ion-select-option>
+              <ion-select-option value="Seguro">Seguro</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Descripción</ion-label>
+            <ion-input [(ngModel)]="reporte.descripcion"></ion-input>
+          </ion-item>
+
+          <ion-button expand="block" (click)="generarReporte()">
+            Generar reporte
+          </ion-button>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  </ion-card>
+  </div> <!-- Espacio inferior para evitar que el contenido quede pegado al final -->
 </ion-content>

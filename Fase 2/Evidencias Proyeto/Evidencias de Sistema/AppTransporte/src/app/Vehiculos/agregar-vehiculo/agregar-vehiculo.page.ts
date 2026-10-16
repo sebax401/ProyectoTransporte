@@ -1,7 +1,7 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute , RouterLink } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonItem,
@@ -9,7 +9,6 @@ import {
 } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth.service';
 import { VehiculoService, Vehiculo } from '../../services/vehiculo';
-
 @Component({
   selector: 'app-agregar-vehiculo',
   templateUrl: './agregar-vehiculo.page.html',
@@ -19,7 +18,7 @@ import { VehiculoService, Vehiculo } from '../../services/vehiculo';
   imports: [
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonItem,
-    IonLabel, IonInput, IonButton, IonButtons, IonBackButton, IonSelect, IonSelectOption, IonDatetime, CommonModule
+    IonLabel, IonInput, IonButton, IonButtons, IonBackButton, IonSelect, IonSelectOption, IonDatetime, CommonModule,RouterLink
   ]
 })
 export class AgregarVehiculoPage {
@@ -90,6 +89,19 @@ export class AgregarVehiculoPage {
   }
 
   async guardarVehiculo() {
+    if (
+      !this.vehiculo.patente ||
+      !this.vehiculo.marca ||
+      !this.vehiculo.modelo ||
+      !this.vehiculo.anio ||
+      !this.vehiculo.proximoKilometraje
+    ) {
+      alert('Complete todos los campos obligatorios');
+      return;
+    }
+
+
+
     this.actualizarEstadoRevision();
     
     const session = await this.authService.getSession();
@@ -152,5 +164,13 @@ export class AgregarVehiculoPage {
         alert(JSON.stringify(error.error));
       }
     });
+  }
+  async logout() {
+    try {
+      await this.authService.logout(); 
+      this.router.navigateByUrl('/login', { replaceUrl: true }); 
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   }
 }

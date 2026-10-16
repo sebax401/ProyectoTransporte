@@ -2,17 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { 
   IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, 
   IonTitle, IonMenuButton, IonButton, IonButtons, IonToolbar, IonHeader, IonSearchbar, 
-  IonRefresher, IonRefresherContent, IonChip, IonLabel, IonIcon ,IonFab, IonFabButton, IonText
+  IonRefresher, IonRefresherContent, IonChip, IonLabel, IonIcon ,IonFab, IonFabButton, IonText,IonGrid, 
+  IonRow, IonCol
 } from '@ionic/angular/standalone';
 
 
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, NgFor } from '@angular/common';
 
 import { addIcons } from 'ionicons';
 import { add } from 'ionicons/icons';
 import { cartOutline, addCircleOutline } from 'ionicons/icons';
-
+import { AuthService } from '../../services/auth.service';
 import { VehiculoService, Vehiculo } from '../../services/vehiculo';
 import { NotificacionService } from '../../services/notificacion';
 import { BarralateralComponent } from '../../BarraLateral/barralateral.component';
@@ -26,7 +27,8 @@ import { BarralateralComponent } from '../../BarraLateral/barralateral.component
     IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, 
     IonTitle, IonMenuButton, IonButton, IonButtons, IonToolbar, IonHeader, IonSearchbar, 
     IonRefresher, IonRefresherContent, IonChip, IonLabel, IonIcon,
-    RouterLink, CommonModule, NgFor, BarralateralComponent, IonFab, IonFabButton, IonText
+    RouterLink, CommonModule, NgFor, BarralateralComponent, IonFab, IonFabButton, IonText,IonGrid, 
+  IonRow, IonCol
     
   ]
 })
@@ -49,7 +51,9 @@ export class VerVehiculoPage implements OnInit {
   constructor(
     private vehiculoService: VehiculoService, 
     private notificacionService: NotificacionService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService,
+    private router: Router
   ) {
     addIcons({ cartOutline, addCircleOutline });
   }
@@ -115,5 +119,13 @@ export class VerVehiculoPage implements OnInit {
     this.results = this.vehiculos.filter(v =>
       v.patente.toLowerCase().includes(query)
     );
+  }
+  async logout() {
+    try {
+      await this.authService.logout(); 
+      this.router.navigateByUrl('/login', { replaceUrl: true }); 
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   }
 }

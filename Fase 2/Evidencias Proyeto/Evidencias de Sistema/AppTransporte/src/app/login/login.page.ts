@@ -12,7 +12,15 @@ import {
   IonInput, 
   IonButton,
   ToastController, 
-  LoadingController 
+  LoadingController,
+  IonCardContent,
+  IonCardTitle,
+  IonCardHeader,
+  IonCard,
+  IonGrid, 
+  IonRow, 
+  IonCol, 
+
 } from '@ionic/angular/standalone'; 
 import { AuthService } from '../services/auth.service';
 
@@ -30,8 +38,15 @@ import { AuthService } from '../services/auth.service';
     IonItem,
     IonLabel,
     IonInput,
-    IonButton 
-  ]
+    IonButton,
+    IonCardContent,
+    IonCardTitle,
+    IonCardHeader,
+     IonCard,
+    IonGrid, 
+    IonRow, 
+    IonCol, 
+  ] 
 })
 export class LoginPage {
   email: string = '';

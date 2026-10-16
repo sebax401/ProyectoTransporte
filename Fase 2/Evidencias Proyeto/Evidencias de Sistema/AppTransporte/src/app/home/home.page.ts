@@ -5,8 +5,8 @@ import {
   IonRefresher, IonRefresherContent, IonChip, IonLabel, IonIcon 
 } from '@ionic/angular/standalone';
 
-import { RouterLink, ActivatedRoute } from '@angular/router';
-
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 import { BarralateralComponent } from '../BarraLateral/barralateral.component';
 
 
@@ -27,4 +27,19 @@ import { BarralateralComponent } from '../BarraLateral/barralateral.component';
     IonIcon
   ]
 })
-export class HomePage {}
+export class HomePage {
+
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+  ) { }
+
+   async logout() {
+    try {
+      await this.authService.logout(); 
+      this.router.navigateByUrl('/login', { replaceUrl: true }); 
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  }
+}

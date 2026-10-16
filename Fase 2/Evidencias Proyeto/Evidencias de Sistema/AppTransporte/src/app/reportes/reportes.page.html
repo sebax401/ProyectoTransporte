@@ -1,9 +1,25 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
+    
+      <ion-title  class="ion-hide-md-down">
+        <a routerLink="/Home" class="ion-hide-md-down"style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
+        <a routerLink="/ListarVehiculos" class="ion-hide-md-down"style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
+        <a routerLink="/empleados" class="ion-hide-md-down" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
+      </ion-title>
+      <div slot="end" class="ion-hide-md-down" style="padding-right: 16px;">
+        <a (click)="logout()" style="color: white; text-decoration: none; font-weight: normal; cursor: pointer;">Cerrar Sesión</a>
+      </div>
+
+      
+
+
+
+
+
+    <ion-buttons slot="start" class="ion-hide-md-up">
       <ion-back-button defaultHref="/ListarVehiculos"></ion-back-button>
     </ion-buttons>
-    <ion-title>Detalle Vehículo</ion-title>
+    <ion-title class="ion-hide-md-up" >Detalle Vehículo</ion-title>
   </ion-toolbar>
 </ion-header>
 
