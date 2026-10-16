@@ -67,6 +67,49 @@ namespace ApiTransporte.Migrations
                     b.ToTable("Empleados");
                 });
 
+            modelBuilder.Entity("ApiTransporte.Models.ServicioViaje", b =>
+                {
+                    b.Property<int>("IdServicio")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Destino")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasDefaultValue("Programado")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("FechaLlegadaEstimada")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("FechaSalida")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("IdVehiculo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Origen")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("IdServicio");
+
+                    b.HasIndex("IdVehiculo");
+
+                    b.ToTable("ServiciosViaje");
+                });
+
             modelBuilder.Entity("ApiTransporte.Models.Reporte", b =>
                 {
                     b.Property<int>("IdReporte")
@@ -170,6 +213,15 @@ namespace ApiTransporte.Migrations
                         .IsRequired();
 
                     b.Navigation("Vehiculo");
+                });
+
+            modelBuilder.Entity("ApiTransporte.Models.ServicioViaje", b =>
+                {
+                    b.HasOne("ApiTransporte.Models.Vehiculo", null)
+                        .WithMany()
+                        .HasForeignKey("IdVehiculo")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ApiTransporte.Models.Vehiculo", b =>
