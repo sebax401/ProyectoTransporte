@@ -1,0 +1,71 @@
+.mensaje {
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin: 0 0 14px;
+  font-weight: 500;
+}
+
+.mensaje.error {
+  color: var(--ion-color-danger-shade);
+  background: var(--ion-color-danger-tint);
+}
+
+.mensaje.exito {
+  color: var(--ion-color-success-shade);
+  background: var(--ion-color-success-tint);
+}
+
+ion-item {
+  --padding-start: 0;
+  margin-bottom: 4px;
+}
+
+.contador {
+  text-align: right;
+  color: var(--ion-color-medium);
+  font-size: 0.8rem;
+  margin: 5px 4px 10px;
+}
+
+.servicio-card {
+  margin: 14px 0 0;
+  border: 1px solid var(--ion-color-light-shade);
+  box-shadow: none;
+}
+
+.titulo-servicio {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.titulo-servicio ion-card-title {
+  font-size: 1.05rem;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.estado-carga {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 8px;
+}
+
+.sin-resultados {
+  padding: 22px 4px;
+  text-align: center;
+  color: var(--ion-color-medium-shade);
+}
+
+.nota-actualizacion {
+  margin-top: 18px;
+  font-size: 0.8rem;
+  color: var(--ion-color-medium-shade);
+}
+
+.spinner-boton {
+  margin-right: 8px;
+}

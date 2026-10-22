@@ -30,7 +30,6 @@ namespace ApiTransporte.Data
             modelBuilder.Entity<ServicioViaje>()
                 .Property(servicio => servicio.Estado)
                 .HasDefaultValue("Programado");
-        }
+        } 
     }
 }
-

@@ -1,0 +1,160 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Servicios y viajes</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cargarServicios()" [disabled]="cargandoLista" aria-label="Actualizar listado">
+        Actualizar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <p *ngIf="mensaje" class="mensaje" [class.error]="tipoMensaje === 'danger'" [class.exito]="tipoMensaje === 'success'" role="status">
+    {{ mensaje }}
+  </p>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>{{ editando ? 'Editar servicio o viaje' : 'Registrar nuevo servicio o viaje' }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-input
+          label="Origen *"
+          labelPlacement="stacked"
+          name="origen"
+          [(ngModel)]="formulario.origen"
+          maxlength="120"
+          placeholder="Ej. Valparaíso">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Destino *"
+          labelPlacement="stacked"
+          name="destino"
+          [(ngModel)]="formulario.destino"
+          maxlength="120"
+          placeholder="Ej. Santiago">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          type="datetime-local"
+          label="Fecha y hora de salida *"
+          labelPlacement="stacked"
+          name="fechaSalida"
+          [(ngModel)]="formulario.fechaSalida">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          type="datetime-local"
+          label="Llegada estimada (opcional)"
+          labelPlacement="stacked"
+          name="fechaLlegadaEstimada"
+          [(ngModel)]="formulario.fechaLlegadaEstimada">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-select
+          label="Vehículo asignado *"
+          labelPlacement="stacked"
+          name="idVehiculo"
+          [(ngModel)]="formulario.idVehiculo"
+          interface="popover"
+          placeholder="Selecciona un vehículo">
+          <ion-select-option [value]="0" disabled>Selecciona un vehículo</ion-select-option>
+          <ion-select-option *ngFor="let vehiculo of vehiculos" [value]="vehiculo.idVehiculo">
+            {{ vehiculo.patente }} - {{ vehiculo.marca }} {{ vehiculo.modelo }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-select
+          label="Estado del servicio *"
+          labelPlacement="stacked"
+          name="estado"
+          [(ngModel)]="formulario.estado"
+          interface="popover">
+          <ion-select-option *ngFor="let estado of estados" [value]="estado">{{ estado }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-textarea
+          label="Observaciones (opcional)"
+          labelPlacement="stacked"
+          name="observaciones"
+          [(ngModel)]="formulario.observaciones"
+          maxlength="500"
+          [autoGrow]="true"
+          placeholder="Información adicional del viaje">
+        </ion-textarea>
+      </ion-item>
+      <p class="contador">{{ formulario.observaciones.length }}/500 caracteres</p>
+
+      <ion-button expand="block" class="ion-margin-top" (click)="guardarServicio()" [disabled]="guardando">
+        <ion-spinner *ngIf="guardando" name="crescent" class="spinner-boton"></ion-spinner>
+        {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Registrar servicio') }}
+      </ion-button>
+      <ion-button *ngIf="editando" expand="block" fill="outline" color="medium" (click)="cancelarEdicion()" [disabled]="guardando">
+        Cancelar edición
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Servicios y viajes registrados</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-select
+          label="Filtrar por vehículo"
+          labelPlacement="stacked"
+          interface="popover"
+          [value]="filtroVehiculo ?? 0"
+          (ionChange)="cambiarFiltroVehiculo($event.detail.value)">
+          <ion-select-option [value]="0">Todos los vehículos</ion-select-option>
+          <ion-select-option *ngFor="let vehiculo of vehiculos" [value]="vehiculo.idVehiculo">
+            {{ vehiculo.patente }} - {{ vehiculo.marca }} {{ vehiculo.modelo }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <div class="estado-carga" *ngIf="cargandoLista">
+        <ion-spinner name="crescent"></ion-spinner>
+        <span>Cargando servicios...</span>
+      </div>
+
+      <p *ngIf="!cargandoLista && servicios.length === 0" class="sin-resultados">
+        No hay servicios para mostrar con el filtro seleccionado.
+      </p>
+
+      <ion-card class="servicio-card" *ngFor="let servicio of servicios">
+        <ion-card-header>
+          <div class="titulo-servicio">
+            <ion-card-title>{{ servicio.origen }} → {{ servicio.destino }}</ion-card-title>
+            <ion-badge [color]="colorEstado(servicio.estado)">{{ servicio.estado }}</ion-badge>
+          </div>
+        </ion-card-header>
+        <ion-card-content>
+          <p><strong>Vehículo:</strong> {{ nombreVehiculo(servicio.idVehiculo, servicio.patenteVehiculo) }}</p>
+          <p><strong>Salida:</strong> {{ servicio.fechaSalida | date:'dd/MM/yyyy HH:mm' }}</p>
+          <p *ngIf="servicio.fechaLlegadaEstimada"><strong>Llegada estimada:</strong> {{ servicio.fechaLlegadaEstimada | date:'dd/MM/yyyy HH:mm' }}</p>
+          <p *ngIf="servicio.observaciones"><strong>Observaciones:</strong> {{ servicio.observaciones }}</p>
+          <ion-button size="small" (click)="editarServicio(servicio)">Editar</ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <p class="nota-actualizacion">El listado consulta automáticamente los cambios cada 30 segundos. También puedes actualizarlo manualmente.</p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
