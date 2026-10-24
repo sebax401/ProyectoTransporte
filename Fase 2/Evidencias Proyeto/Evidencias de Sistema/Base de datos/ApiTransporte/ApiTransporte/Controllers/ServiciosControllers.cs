@@ -28,7 +28,7 @@ namespace ApiTransporte.Controllers
         public async Task<ActionResult<IEnumerable<ServicioViajeDto>>> ObtenerServicios(
             [FromQuery] int? vehiculoId = null)
         {
-            var consulta = _context.ServiciosViaje.AsNoTracking();
+            var consulta = _context.ServicioViajeDto.AsNoTracking();
 
             if (vehiculoId.HasValue)
             {
@@ -66,7 +66,7 @@ namespace ApiTransporte.Controllers
         public async Task<ActionResult<ServicioViajeDto>> ObtenerServicio(int id)
         {
             var servicio = await (
-                from s in _context.ServiciosViaje.AsNoTracking()
+                from s in _context.ServicioViajeDto.AsNoTracking()
                 join vehiculo in _context.Vehiculo.AsNoTracking()
                     on s.IdVehiculo equals vehiculo.IdVehiculo
                 where s.IdServicio == id
@@ -109,7 +109,7 @@ namespace ApiTransporte.Controllers
                 ? null
                 : servicio.Observaciones.Trim();
 
-            _context.ServiciosViaje.Add(servicio);
+            _context.ServicioViajeDto.Add(servicio);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(ObtenerServicio), new { id = servicio.IdServicio }, servicio);
@@ -125,7 +125,7 @@ namespace ApiTransporte.Controllers
                 return BadRequest(new { mensaje = "El identificador de la URL no coincide con el servicio." });
             }
 
-            var existente = await _context.ServiciosViaje.FindAsync(id);
+            var existente = await _context.ServicioViajeDto.FindAsync(id);
             if (existente == null)
             {
                 return NotFound(new { mensaje = "El servicio o viaje no existe." });
