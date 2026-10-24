@@ -65,7 +65,25 @@ namespace ApiTransporte.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ServicioViajeDto>> ObtenerServicio(int id)
         {
-            var servicio = await ObtenerDto(id);
+            var servicio = await (
+                from s in _context.ServiciosViaje.AsNoTracking()
+                join vehiculo in _context.Vehiculo.AsNoTracking()
+                    on s.IdVehiculo equals vehiculo.IdVehiculo
+                where s.IdServicio == id
+                select new ServicioViajeDto
+                {
+                    IdServicio = s.IdServicio,
+                    Origen = s.Origen,
+                    Destino = s.Destino,
+                    FechaSalida = s.FechaSalida,
+                    FechaLlegadaEstimada = s.FechaLlegadaEstimada,
+                    Estado = s.Estado,
+                    IdVehiculo = s.IdVehiculo,
+                    PatenteVehiculo = vehiculo.Patente,
+                    IdEmpleado = s.IdEmpleado,
+                    Observaciones = s.Observaciones
+                }).SingleOrDefaultAsync();
+
             if (servicio == null)
             {
                 return NotFound(new { mensaje = "El servicio o viaje no existe." });
@@ -94,8 +112,7 @@ namespace ApiTransporte.Controllers
             _context.ServiciosViaje.Add(servicio);
             await _context.SaveChangesAsync();
 
-            var creado = await ObtenerDto(servicio.IdServicio);
-            return CreatedAtAction(nameof(ObtenerServicio), new { id = servicio.IdServicio }, creado);
+            return CreatedAtAction(nameof(ObtenerServicio), new { id = servicio.IdServicio }, servicio);
         }
 
         [HttpPut("{id:int}")]
@@ -132,7 +149,7 @@ namespace ApiTransporte.Controllers
                 : cambios.Observaciones.Trim();
 
             await _context.SaveChangesAsync();
-            return Ok(await ObtenerDto(id));
+            return Ok(existente);
         }
 
         private async Task<string?> ValidarServicio(ServicioViajeDto servicio)
@@ -175,28 +192,6 @@ namespace ApiTransporte.Controllers
             var valor = (estado ?? "").Trim();
             return EstadosPermitidos.First(e =>
                 string.Equals(e, valor, StringComparison.OrdinalIgnoreCase));
-        }
-
-        private Task<ServicioViajeDto?> ObtenerDto(int id)
-        {
-            return (
-                from servicio in _context.ServiciosViaje.AsNoTracking()
-                join vehiculo in _context.Vehiculo.AsNoTracking()
-                    on servicio.IdVehiculo equals vehiculo.IdVehiculo
-                where servicio.IdServicio == id
-                select new ServicioViajeDto
-                {
-                    IdServicio = servicio.IdServicio,
-                    Origen = servicio.Origen,
-                    Destino = servicio.Destino,
-                    FechaSalida = servicio.FechaSalida,
-                    FechaLlegadaEstimada = servicio.FechaLlegadaEstimada,
-                    Estado = servicio.Estado,
-                    IdVehiculo = servicio.IdVehiculo,
-                    PatenteVehiculo = vehiculo.Patente,
-                    IdEmpleado = servicio.IdEmpleado,
-                    Observaciones = servicio.Observaciones
-                }).SingleOrDefaultAsync();
         }
     }
 }
