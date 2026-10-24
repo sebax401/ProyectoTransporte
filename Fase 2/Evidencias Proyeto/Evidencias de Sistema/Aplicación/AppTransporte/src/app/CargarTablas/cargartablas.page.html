@@ -49,4 +49,26 @@
     </ion-card-content>
   </ion-card>
 
+  <!-- SECCIÓN DE SERVICIOS / VIAJES -->
+  <ion-card class="ion-margin-top">
+    <ion-card-header>
+      <ion-card-title>Carga de Servicios / Viajes</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <input type="file" (change)="onServicioFileChange($event)" accept=".xlsx, .xls" />
+
+      <p *ngIf="serviciosParaSubir.length > 0">
+        Servicios detectados: {{ serviciosParaSubir.length }}
+      </p>
+
+      <ion-button expand="block" 
+                  color="tertiary"
+                  (click)="subirServicios()" 
+                  [disabled]="serviciosParaSubir.length === 0 || cargandoServicios">
+        <ion-spinner *ngIf="cargandoServicios" name="crescent"></ion-spinner>
+        {{ cargandoServicios ? 'Guardando servicios...' : 'Subir Servicios' }}
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
 </ion-content>

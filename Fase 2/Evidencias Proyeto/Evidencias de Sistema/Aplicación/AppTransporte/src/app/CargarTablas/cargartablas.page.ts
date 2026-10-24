@@ -18,6 +18,7 @@ import {
 // Importamos los modelos y servicios
 import { VehiculoService, Vehiculo } from '../services/vehiculo';
 import { EmpleadoService, Empleado } from '../services/empleado';
+import { ServicioViajeService, ServicioViajeRequest } from '../services/servicio-viaje';
 
 @Component({
   selector: 'app-carga-excel',
@@ -38,7 +39,6 @@ import { EmpleadoService, Empleado } from '../services/empleado';
   ]
 })
 export class CargaExcelPage {
-  // ... el resto de tu código se mantiene igual
   // Variables para Vehículos
   vehiculosParaSubir: Vehiculo[] = [];
   cargandoVehiculos = false;
@@ -47,9 +47,14 @@ export class CargaExcelPage {
   empleadosParaSubir: Empleado[] = [];
   cargandoEmpleados = false;
 
+  // Variables para Servicios/Viajes
+  serviciosParaSubir: ServicioViajeRequest[] = [];
+  cargandoServicios = false;
+
   constructor(
     private vehiculoService: VehiculoService,
-    private empleadoService: EmpleadoService
+    private empleadoService: EmpleadoService,
+    private servicioViajeService: ServicioViajeService
   ) {}
 
   // ==========================================
@@ -166,6 +171,60 @@ export class CargaExcelPage {
         this.cargandoEmpleados = false;
         console.error('Error al subir empleados:', err);
         alert('Ocurrió un error al cargar algunos empleados. Revisa la consola.');
+      }
+    });
+  }
+
+  // ==========================================
+  // SECCIÓN: SERVICIOS / VIAJES
+  // ==========================================
+  onServicioFileChange(event: any) {
+    const target: DataTransfer = <DataTransfer>(event.target);
+    if (target.files.length !== 1) {
+      alert('Solo puedes subir un archivo a la vez');
+      return;
+    }
+
+    const reader: FileReader = new FileReader();
+    reader.onload = (e: any) => {
+      const arrayBuffer = e.target.result;
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const hoja = workbook.Sheets[workbook.SheetNames[0]];
+      const datosExcel = XLSX.utils.sheet_to_json(hoja);
+
+      this.serviciosParaSubir = datosExcel.map((fila: any): ServicioViajeRequest => ({
+        idServicio: 0,
+        origen: String(fila.Origen || '').trim(),
+        destino: String(fila.Destino || '').trim(),
+        fechaSalida: fila.FechaSalida ? new Date(fila.FechaSalida).toISOString() : new Date().toISOString(),
+        fechaLlegadaEstimada: fila.FechaLlegadaEstimada ? new Date(fila.FechaLlegadaEstimada).toISOString() : null,
+        estado: fila.Estado ? String(fila.Estado).trim() : 'Programado',
+        idVehiculo: Number(fila.IdVehiculo || 0),
+        idEmpleado: Number(fila.IdEmpleado || 0),
+        observaciones: fila.Observaciones ? String(fila.Observaciones).trim() : null
+      }));
+    };
+    reader.readAsArrayBuffer(target.files[0]);
+  }
+
+  subirServicios() {
+    if (this.serviciosParaSubir.length === 0) return;
+    this.cargandoServicios = true;
+
+    const peticiones = this.serviciosParaSubir.map(servicio => 
+      this.servicioViajeService.crearServicio(servicio)
+    );
+
+    forkJoin(peticiones).subscribe({
+      next: () => {
+        this.cargandoServicios = false;
+        alert(`${this.serviciosParaSubir.length} servicios/viajes cargados correctamente.`);
+        this.serviciosParaSubir = [];
+      },
+      error: (err) => {
+        this.cargandoServicios = false;
+        console.error('Error al subir servicios:', err);
+        alert('Ocurrió un error al cargar algunos servicios/viajes. Revisa la consola.');
       }
     });
   }
