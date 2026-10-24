@@ -75,31 +75,27 @@ namespace ApiTransporte.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServicioViajeDto>> CrearServicio([FromBody] ServicioViajeDto dto)
+        public async Task<ActionResult<ServicioViajeDto>> CrearServicio([FromBody] ServicioViajeDto servicio)
         {
-            var errorValidacion = await ValidarServicioDto(dto);
+            var errorValidacion = await ValidarServicio(servicio);
             if (errorValidacion != null)
             {
                 return BadRequest(new { mensaje = errorValidacion });
             }
 
-            var nuevaEntidad = new ServicioViaje
-            {
-                Origen = dto.Origen.Trim(),
-                Destino = dto.Destino.Trim(),
-                FechaSalida = dto.FechaSalida,
-                FechaLlegadaEstimada = dto.FechaLlegadaEstimada,
-                Estado = NormalizarEstado(dto.Estado),
-                IdVehiculo = dto.IdVehiculo,
-                IdEmpleado = dto.IdEmpleado,
-                Observaciones = string.IsNullOrWhiteSpace(dto.Observaciones) ? null : dto.Observaciones.Trim()
-            };
+            servicio.IdServicio = 0;
+            servicio.Origen = servicio.Origen.Trim();
+            servicio.Destino = servicio.Destino.Trim();
+            servicio.Estado = NormalizarEstado(servicio.Estado);
+            servicio.Observaciones = string.IsNullOrWhiteSpace(servicio.Observaciones)
+                ? null
+                : servicio.Observaciones.Trim();
 
-            _context.ServiciosViaje.Add(nuevaEntidad);
+            _context.ServiciosViaje.Add(servicio);
             await _context.SaveChangesAsync();
 
-            var creado = await ObtenerDto(nuevaEntidad.IdServicio);
-            return CreatedAtAction(nameof(ObtenerServicio), new { id = nuevaEntidad.IdServicio }, creado);
+            var creado = await ObtenerDto(servicio.IdServicio);
+            return CreatedAtAction(nameof(ObtenerServicio), new { id = servicio.IdServicio }, creado);
         }
 
         [HttpPut("{id:int}")]
@@ -118,7 +114,7 @@ namespace ApiTransporte.Controllers
                 return NotFound(new { mensaje = "El servicio o viaje no existe." });
             }
 
-            var errorValidacion = await ValidarServicioDto(cambios);
+            var errorValidacion = await ValidarServicio(cambios);
             if (errorValidacion != null)
             {
                 return BadRequest(new { mensaje = errorValidacion });
@@ -139,36 +135,36 @@ namespace ApiTransporte.Controllers
             return Ok(await ObtenerDto(id));
         }
 
-        private async Task<string?> ValidarServicioDto(ServicioViajeDto dto)
+        private async Task<string?> ValidarServicio(ServicioViajeDto servicio)
         {
-            if (string.IsNullOrWhiteSpace(dto.Origen))
+            if (string.IsNullOrWhiteSpace(servicio.Origen))
                 return "El origen es obligatorio.";
 
-            if (string.IsNullOrWhiteSpace(dto.Destino))
+            if (string.IsNullOrWhiteSpace(servicio.Destino))
                 return "El destino es obligatorio.";
 
-            if (dto.Origen.Trim().Length > 120 || dto.Destino.Trim().Length > 120)
+            if (servicio.Origen.Trim().Length > 120 || servicio.Destino.Trim().Length > 120)
                 return "El origen y el destino no pueden superar los 120 caracteres.";
 
-            if (string.Equals(dto.Origen.Trim(), dto.Destino.Trim(), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(servicio.Origen.Trim(), servicio.Destino.Trim(), StringComparison.OrdinalIgnoreCase))
                 return "El origen y el destino deben ser diferentes.";
 
-            if (dto.FechaSalida == default)
+            if (servicio.FechaSalida == default)
                 return "La fecha y hora de salida son obligatorias.";
 
-            if (dto.FechaLlegadaEstimada.HasValue &&
-                dto.FechaLlegadaEstimada.Value <= dto.FechaSalida)
+            if (servicio.FechaLlegadaEstimada.HasValue &&
+                servicio.FechaLlegadaEstimada.Value <= servicio.FechaSalida)
                 return "La llegada estimada debe ser posterior a la salida.";
 
-            if (!EstadosPermitidos.Contains(dto.Estado?.Trim() ?? string.Empty, StringComparer.OrdinalIgnoreCase))
+            if (!EstadosPermitidos.Contains(servicio.Estado?.Trim() ?? string.Empty, StringComparer.OrdinalIgnoreCase))
                 return "El estado debe ser Programado, En curso, Finalizado o Cancelado.";
 
             var vehiculoExiste = await _context.Vehiculo
-                .AnyAsync(v => v.IdVehiculo == dto.IdVehiculo);
+                .AnyAsync(v => v.IdVehiculo == servicio.IdVehiculo);
             if (!vehiculoExiste)
                 return "Debe seleccionar un vehículo registrado.";
 
-            if (!string.IsNullOrWhiteSpace(dto.Observaciones) && dto.Observaciones.Length > 500)
+            if (!string.IsNullOrWhiteSpace(servicio.Observaciones) && servicio.Observaciones.Length > 500)
                 return "Las observaciones no pueden superar los 500 caracteres.";
 
             return null;
