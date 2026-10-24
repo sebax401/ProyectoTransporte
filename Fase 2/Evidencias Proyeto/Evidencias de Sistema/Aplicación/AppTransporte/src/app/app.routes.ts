@@ -52,5 +52,15 @@ export const routes: Routes = [
     loadComponent: () => import('./Vehiculos/Ver-vehiculo/Ver-vehiculo.page').then((m) => m.VerVehiculoPage),
     canActivate: [authGuard]
   },
+   {
+    path: 'agregar-vehiculo',
+    loadComponent: () => import('./Vehiculos/agregar-vehiculo/agregar-vehiculo.page').then( m => m.AgregarVehiculoPage),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'cargar-tablas',
+    loadComponent: () => import('./CargarTablas/cargartablas.page').then( m => m.CargaExcelPage),
+    canActivate: [authGuard]
+  }
 
 ];

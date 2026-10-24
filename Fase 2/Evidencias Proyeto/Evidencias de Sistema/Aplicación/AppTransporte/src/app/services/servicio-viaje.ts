@@ -15,6 +15,7 @@ export interface ServicioViaje {
   fechaLlegadaEstimada: string | null;
   estado: EstadoServicio | string;
   idVehiculo: number;
+  idEmpleado: number;
   patenteVehiculo?: string;
   observaciones: string | null;
 }

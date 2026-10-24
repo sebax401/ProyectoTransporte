@@ -24,7 +24,7 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { ServicioViaje, ServicioViajeRequest, ServicioViajeService, EstadoServicio } from '../services/servicio-viaje';
 import { Vehiculo, VehiculoService } from '../services/vehiculo';
-
+import { Empleado, EmpleadoService } from '../services/empleado'
 interface FormularioServicio {
   origen: string;
   destino: string;
@@ -32,6 +32,7 @@ interface FormularioServicio {
   fechaLlegadaEstimada: string;
   estado: EstadoServicio;
   idVehiculo: number;
+  idEmpleado: number;
   observaciones: string;
 }
 
@@ -66,6 +67,7 @@ interface FormularioServicio {
 export class ServiciosViajesPage implements OnInit, OnDestroy {
   servicios: ServicioViaje[] = [];
   vehiculos: Vehiculo[] = [];
+  Empleados: Empleado[] = [];
   filtroVehiculo: number | null = null;
   formulario: FormularioServicio = this.formularioVacio();
   estados: EstadoServicio[] = ['Programado', 'En curso', 'Finalizado', 'Cancelado'];
@@ -81,12 +83,14 @@ export class ServiciosViajesPage implements OnInit, OnDestroy {
 
   constructor(
     private readonly servicioService: ServicioViajeService,
-    private readonly vehiculoService: VehiculoService
+    private readonly vehiculoService: VehiculoService,
+    private readonly EmpleadoService: EmpleadoService
   ) {}
 
   ngOnInit(): void {
     this.cargarVehiculos();
     this.cargarServicios();
+    this.cargarEmpleados();
     // Actualiza el estado del listado periódicamente sin obligar al usuario a recargar.
     this.intervaloActualizacion = setInterval(() => this.cargarServicios(false), 30000);
   }
@@ -105,6 +109,7 @@ export class ServiciosViajesPage implements OnInit, OnDestroy {
       fechaLlegadaEstimada: '',
       estado: 'Programado',
       idVehiculo: 0,
+      idEmpleado: 0,
       observaciones: ''
     };
   }
@@ -123,6 +128,17 @@ export class ServiciosViajesPage implements OnInit, OnDestroy {
       error: error => {
         console.error('Error al cargar vehículos para servicios/viajes:', error);
         this.mostrarError(error, 'No se pudieron cargar los vehículos. Verifica tu sesión y la conexión con la API.');
+      }
+    });
+  }
+    cargarEmpleados(): void {
+    this.EmpleadoService.obtenerEmpleados().subscribe({
+      next: Empleados => {
+        this.Empleados = Empleados ?? [];
+      },
+      error: error => {
+        console.error('Error al cargar Conductores para servicios/viajes:', error);
+        this.mostrarError(error, 'No se pudieron cargar los Conductores. Verifica tu sesión y la conexión con la API.');
       }
     });
   }
@@ -171,6 +187,7 @@ export class ServiciosViajesPage implements OnInit, OnDestroy {
       fechaLlegadaEstimada: this.formulario.fechaLlegadaEstimada || null,
       estado: this.formulario.estado,
       idVehiculo: Number(this.formulario.idVehiculo),
+      idEmpleado: Number(this.formulario.idEmpleado),
       observaciones: this.formulario.observaciones.trim() || null
     };
 
@@ -207,6 +224,7 @@ export class ServiciosViajesPage implements OnInit, OnDestroy {
       fechaLlegadaEstimada: this.fechaParaInput(servicio.fechaLlegadaEstimada),
       estado: this.estadoPermitido(servicio.estado),
       idVehiculo: Number(servicio.idVehiculo),
+      idEmpleado: Number(servicio.idEmpleado),
       observaciones: servicio.observaciones ?? ''
     };
     this.mensaje = '';
@@ -238,6 +256,15 @@ export class ServiciosViajesPage implements OnInit, OnDestroy {
     const vehiculo = this.vehiculos.find(item => item.idVehiculo === idVehiculo);
     return vehiculo ? `${vehiculo.patente} - ${vehiculo.marca ?? ''} ${vehiculo.modelo}`.trim() : `Vehículo #${idVehiculo}`;
   }
+    nombreEmpleado(idEmpleado: number) {
+    const Empleado = this.Empleados.find(item => item.idEmpleado === idEmpleado);
+
+    if (Empleado) {
+      return `${Empleado.nombre} ${Empleado.apellido}`;
+    }
+
+    return `empleado #${idEmpleado}`;
+  }
 
   private validarFormulario(): string | null {
     if (!this.formulario.origen.trim() || !this.formulario.destino.trim()) {
@@ -248,6 +275,9 @@ export class ServiciosViajesPage implements OnInit, OnDestroy {
     }
     if (this.formulario.origen.trim().toLocaleLowerCase() === this.formulario.destino.trim().toLocaleLowerCase()) {
       return 'El origen y el destino deben ser diferentes.';
+    }
+    if (!this.formulario.idEmpleado || !this.Empleados.some(e => e.idEmpleado === Number(this.formulario.idEmpleado))) {
+      return 'Selecciona un conductor registrado.';
     }
     if (!this.formulario.fechaSalida || Number.isNaN(new Date(this.formulario.fechaSalida).getTime())) {
       return 'Selecciona una fecha y hora de salida válidas.';

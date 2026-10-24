@@ -5,7 +5,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-content >
+  <ion-content>
     <ion-list>
 
       <ion-menu-toggle auto-hide="false">
@@ -22,12 +22,13 @@
       
       <ion-menu-toggle auto-hide="false">
         <ion-item routerLink="/servicios" routerDirection="root">Servicios</ion-item>
-
+      </ion-menu-toggle>
       <ion-menu-toggle auto-hide="false">
         <ion-item button (click)="logout()" color="danger" detail="false">
           <ion-label>Cerrar Sesión</ion-label>
         </ion-item>
       </ion-menu-toggle>
+      
     </ion-list>
   </ion-content>
 </ion-menu>

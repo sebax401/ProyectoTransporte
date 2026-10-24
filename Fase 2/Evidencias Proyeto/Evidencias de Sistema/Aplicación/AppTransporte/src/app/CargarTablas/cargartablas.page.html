@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Carga Masiva (Excel)</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <!-- SECCIÓN DE VEHÍCULOS -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Carga de Vehículos</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <input type="file" (change)="onVehiculoFileChange($event)" accept=".xlsx, .xls" />
+
+      <p *ngIf="vehiculosParaSubir.length > 0">
+        Vehículos detectados: {{ vehiculosParaSubir.length }}
+      </p>
+
+      <ion-button expand="block" 
+                  (click)="subirVehiculos()" 
+                  [disabled]="vehiculosParaSubir.length === 0 || cargandoVehiculos">
+        <ion-spinner *ngIf="cargandoVehiculos" name="crescent"></ion-spinner>
+        {{ cargandoVehiculos ? 'Guardando vehículos...' : 'Subir Vehículos' }}
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- SECCIÓN DE EMPLEADOS -->
+  <ion-card class="ion-margin-top">
+    <ion-card-header>
+      <ion-card-title>Carga de Empleados</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <input type="file" (change)="onEmpleadoFileChange($event)" accept=".xlsx, .xls" />
+
+      <p *ngIf="empleadosParaSubir.length > 0">
+        Empleados detectados: {{ empleadosParaSubir.length }}
+      </p>
+
+      <ion-button expand="block" 
+                  color="secondary"
+                  (click)="subirEmpleados()" 
+                  [disabled]="empleadosParaSubir.length === 0 || cargandoEmpleados">
+        <ion-spinner *ngIf="cargandoEmpleados" name="crescent"></ion-spinner>
+        {{ cargandoEmpleados ? 'Guardando empleados...' : 'Subir Empleados' }}
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

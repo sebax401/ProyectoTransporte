@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar >
     <ion-title>Servicios y viajes</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="cargarServicios()" [disabled]="cargandoLista" aria-label="Actualizar listado">
@@ -8,7 +8,7 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-//
+
 <ion-content class="ion-padding">
   <p *ngIf="mensaje" class="mensaje" [class.error]="tipoMensaje === 'danger'" [class.exito]="tipoMensaje === 'success'" role="status">
     {{ mensaje }}
@@ -72,6 +72,21 @@
           <ion-select-option [value]="0" disabled>Selecciona un vehículo</ion-select-option>
           <ion-select-option *ngFor="let vehiculo of vehiculos" [value]="vehiculo.idVehiculo">
             {{ vehiculo.patente }} - {{ vehiculo.marca }} {{ vehiculo.modelo }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-select
+          label="Conductor asignado *"
+          labelPlacement="stacked"
+          name="idEmpleado"
+          [(ngModel)]="formulario.idEmpleado"
+          interface="popover"
+          placeholder="Selecciona un Conductor">
+          <ion-select-option [value]="0" disabled>Selecciona un Conductor</ion-select-option>
+          <ion-select-option *ngFor="let Empleado of Empleados" [value]="Empleado.idEmpleado">
+            {{ Empleado.nombre }} {{ Empleado.apellido }} ({{ Empleado.cargo }}) ({{ Empleado.idEmpleado}})
           </ion-select-option>
         </ion-select>
       </ion-item>
@@ -147,6 +162,7 @@
         </ion-card-header>
         <ion-card-content>
           <p><strong>Vehículo:</strong> {{ nombreVehiculo(servicio.idVehiculo, servicio.patenteVehiculo) }}</p>
+          <p><strong>Conductor:</strong> {{ nombreEmpleado(servicio.idEmpleado) }}</p>
           <p><strong>Salida:</strong> {{ servicio.fechaSalida | date:'dd/MM/yyyy HH:mm' }}</p>
           <p *ngIf="servicio.fechaLlegadaEstimada"><strong>Llegada estimada:</strong> {{ servicio.fechaLlegadaEstimada | date:'dd/MM/yyyy HH:mm' }}</p>
           <p *ngIf="servicio.observaciones"><strong>Observaciones:</strong> {{ servicio.observaciones }}</p>
