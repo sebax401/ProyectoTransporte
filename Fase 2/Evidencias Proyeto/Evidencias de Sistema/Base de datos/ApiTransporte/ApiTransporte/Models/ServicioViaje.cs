@@ -26,6 +26,8 @@ namespace ApiTransporte.Models
 
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un vehículo.")]
         public int IdVehiculo { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un vehículo.")]
+        public int IdEmpleado { get; set; }
 
         [MaxLength(500)]
         public string? Observaciones { get; set; }
