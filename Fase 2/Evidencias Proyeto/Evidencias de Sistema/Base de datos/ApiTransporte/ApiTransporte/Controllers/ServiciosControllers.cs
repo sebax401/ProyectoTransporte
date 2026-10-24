@@ -75,33 +75,37 @@ namespace ApiTransporte.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServicioViajeDto>> CrearServicio([FromBody] ServicioViaje servicio)
+        public async Task<ActionResult<ServicioViajeDto>> CrearServicio([FromBody] ServicioViajeDto dto)
         {
-            var errorValidacion = await ValidarServicio(servicio);
+            var errorValidacion = await ValidarServicioDto(dto);
             if (errorValidacion != null)
             {
                 return BadRequest(new { mensaje = errorValidacion });
             }
 
-            servicio.IdServicio = 0;
-            servicio.Origen = servicio.Origen.Trim();
-            servicio.Destino = servicio.Destino.Trim();
-            servicio.Estado = NormalizarEstado(servicio.Estado);
-            servicio.Observaciones = string.IsNullOrWhiteSpace(servicio.Observaciones)
-                ? null
-                : servicio.Observaciones.Trim();
+            var nuevaEntidad = new ServicioViaje
+            {
+                Origen = dto.Origen.Trim(),
+                Destino = dto.Destino.Trim(),
+                FechaSalida = dto.FechaSalida,
+                FechaLlegadaEstimada = dto.FechaLlegadaEstimada,
+                Estado = NormalizarEstado(dto.Estado),
+                IdVehiculo = dto.IdVehiculo,
+                IdEmpleado = dto.IdEmpleado,
+                Observaciones = string.IsNullOrWhiteSpace(dto.Observaciones) ? null : dto.Observaciones.Trim()
+            };
 
-            _context.ServiciosViaje.Add(servicio);
+            _context.ServiciosViaje.Add(nuevaEntidad);
             await _context.SaveChangesAsync();
 
-            var creado = await ObtenerDto(servicio.IdServicio);
-            return CreatedAtAction(nameof(ObtenerServicio), new { id = servicio.IdServicio }, creado);
+            var creado = await ObtenerDto(nuevaEntidad.IdServicio);
+            return CreatedAtAction(nameof(ObtenerServicio), new { id = nuevaEntidad.IdServicio }, creado);
         }
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult<ServicioViajeDto>> ActualizarServicio(
             int id,
-            [FromBody] ServicioViaje cambios)
+            [FromBody] ServicioViajeDto cambios)
         {
             if (id != cambios.IdServicio)
             {
@@ -114,7 +118,7 @@ namespace ApiTransporte.Controllers
                 return NotFound(new { mensaje = "El servicio o viaje no existe." });
             }
 
-            var errorValidacion = await ValidarServicio(cambios);
+            var errorValidacion = await ValidarServicioDto(cambios);
             if (errorValidacion != null)
             {
                 return BadRequest(new { mensaje = errorValidacion });
@@ -135,41 +139,41 @@ namespace ApiTransporte.Controllers
             return Ok(await ObtenerDto(id));
         }
 
-        private async Task<string?> ValidarServicio(ServicioViaje servicio)
+        private async Task<string?> ValidarServicioDto(ServicioViajeDto dto)
         {
-            if (string.IsNullOrWhiteSpace(servicio.Origen))
+            if (string.IsNullOrWhiteSpace(dto.Origen))
                 return "El origen es obligatorio.";
 
-            if (string.IsNullOrWhiteSpace(servicio.Destino))
+            if (string.IsNullOrWhiteSpace(dto.Destino))
                 return "El destino es obligatorio.";
 
-            if (servicio.Origen.Trim().Length > 120 || servicio.Destino.Trim().Length > 120)
+            if (dto.Origen.Trim().Length > 120 || dto.Destino.Trim().Length > 120)
                 return "El origen y el destino no pueden superar los 120 caracteres.";
 
-            if (string.Equals(servicio.Origen.Trim(), servicio.Destino.Trim(), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(dto.Origen.Trim(), dto.Destino.Trim(), StringComparison.OrdinalIgnoreCase))
                 return "El origen y el destino deben ser diferentes.";
 
-            if (servicio.FechaSalida == default)
+            if (dto.FechaSalida == default)
                 return "La fecha y hora de salida son obligatorias.";
 
-            if (servicio.FechaLlegadaEstimada.HasValue &&
-                servicio.FechaLlegadaEstimada.Value <= servicio.FechaSalida)
+            if (dto.FechaLlegadaEstimada.HasValue &&
+                dto.FechaLlegadaEstimada.Value <= dto.FechaSalida)
                 return "La llegada estimada debe ser posterior a la salida.";
 
-            if (!EstadosPermitidos.Contains(servicio.Estado?.Trim() ?? string.Empty, StringComparer.OrdinalIgnoreCase))
+            if (!EstadosPermitidos.Contains(dto.Estado?.Trim() ?? string.Empty, StringComparer.OrdinalIgnoreCase))
                 return "El estado debe ser Programado, En curso, Finalizado o Cancelado.";
 
             var vehiculoExiste = await _context.Vehiculo
-                .AnyAsync(v => v.IdVehiculo == servicio.IdVehiculo);
+                .AnyAsync(v => v.IdVehiculo == dto.IdVehiculo);
             if (!vehiculoExiste)
                 return "Debe seleccionar un vehículo registrado.";
 
             var empleadoExiste = await _context.Empleado
-                .AnyAsync(e => e.IdEmpleado == servicio.IdEmpleado);
+                .AnyAsync(e => e.IdEmpleado == dto.IdEmpleado);
             if (!empleadoExiste)
                 return "Debe seleccionar un conductor/empleado registrado.";
 
-            if (!string.IsNullOrWhiteSpace(servicio.Observaciones) && servicio.Observaciones.Length > 500)
+            if (!string.IsNullOrWhiteSpace(dto.Observaciones) && dto.Observaciones.Length > 500)
                 return "Las observaciones no pueden superar los 500 caracteres.";
 
             return null;
