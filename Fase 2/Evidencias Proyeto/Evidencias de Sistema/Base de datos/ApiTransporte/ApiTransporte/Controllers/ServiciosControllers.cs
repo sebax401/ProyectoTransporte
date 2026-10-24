@@ -54,6 +54,7 @@ namespace ApiTransporte.Controllers
                     FechaLlegadaEstimada = servicio.FechaLlegadaEstimada,
                     Estado = servicio.Estado,
                     IdVehiculo = servicio.IdVehiculo,
+                    IdEmpleado = servicio.IdEmpleado,
                     PatenteVehiculo = vehiculo.Patente,
                     Observaciones = servicio.Observaciones
                 }).ToListAsync();
