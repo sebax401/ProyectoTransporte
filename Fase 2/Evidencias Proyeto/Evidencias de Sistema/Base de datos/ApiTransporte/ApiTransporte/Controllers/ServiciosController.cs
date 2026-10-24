@@ -25,10 +25,10 @@ namespace ApiTransporte.Controllers
 
         // GET api/Servicios?vehiculoId=3
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ServicioViajeDto>>> ObtenerServicios(
+        public async Task<ActionResult<IEnumerable<ServicioViaje>>> ObtenerServicios(
             [FromQuery] int? vehiculoId = null)
         {
-            var consulta = _context.ServicioViajeDto.AsNoTracking();
+            var consulta = _context.ServiciosViaje.AsNoTracking();
 
             if (vehiculoId.HasValue)
             {
@@ -40,49 +40,20 @@ namespace ApiTransporte.Controllers
                 consulta = consulta.Where(s => s.IdVehiculo == vehiculoId.Value);
             }
 
-            var servicios = await (
-                from servicio in consulta
-                join vehiculo in _context.Vehiculo.AsNoTracking()
-                    on servicio.IdVehiculo equals vehiculo.IdVehiculo
-                orderby servicio.FechaSalida
-                select new ServicioViajeDto
-                {
-                    IdServicio = servicio.IdServicio,
-                    Origen = servicio.Origen,
-                    Destino = servicio.Destino,
-                    FechaSalida = servicio.FechaSalida,
-                    FechaLlegadaEstimada = servicio.FechaLlegadaEstimada,
-                    Estado = servicio.Estado,
-                    IdVehiculo = servicio.IdVehiculo,
-                    PatenteVehiculo = vehiculo.Patente,
-                    IdEmpleado = servicio.IdEmpleado,
-                    Observaciones = servicio.Observaciones
-                }).ToListAsync();
+            var servicios = await consulta
+                .OrderBy(s => s.FechaSalida)
+                .ToListAsync();
 
             return Ok(servicios);
         }
 
+        // GET api/Servicios/5
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ServicioViajeDto>> ObtenerServicio(int id)
+        public async Task<ActionResult<ServicioViaje>> ObtenerServicio(int id)
         {
-            var servicio = await (
-                from s in _context.ServicioViajeDto.AsNoTracking()
-                join vehiculo in _context.Vehiculo.AsNoTracking()
-                    on s.IdVehiculo equals vehiculo.IdVehiculo
-                where s.IdServicio == id
-                select new ServicioViajeDto
-                {
-                    IdServicio = s.IdServicio,
-                    Origen = s.Origen,
-                    Destino = s.Destino,
-                    FechaSalida = s.FechaSalida,
-                    FechaLlegadaEstimada = s.FechaLlegadaEstimada,
-                    Estado = s.Estado,
-                    IdVehiculo = s.IdVehiculo,
-                    PatenteVehiculo = vehiculo.Patente,
-                    IdEmpleado = s.IdEmpleado,
-                    Observaciones = s.Observaciones
-                }).SingleOrDefaultAsync();
+            var servicio = await _context.ServiciosViaje
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.IdServicio == id);
 
             if (servicio == null)
             {
@@ -92,8 +63,9 @@ namespace ApiTransporte.Controllers
             return Ok(servicio);
         }
 
+        // POST api/Servicios
         [HttpPost]
-        public async Task<ActionResult<ServicioViajeDto>> CrearServicio([FromBody] ServicioViajeDto servicio)
+        public async Task<ActionResult<ServicioViaje>> CrearServicio([FromBody] ServicioViaje servicio)
         {
             var errorValidacion = await ValidarServicio(servicio);
             if (errorValidacion != null)
@@ -109,23 +81,24 @@ namespace ApiTransporte.Controllers
                 ? null
                 : servicio.Observaciones.Trim();
 
-            _context.ServicioViajeDto.Add(servicio);
+            _context.ServiciosViaje.Add(servicio);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(ObtenerServicio), new { id = servicio.IdServicio }, servicio);
         }
 
+        // PUT api/Servicios/5
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<ServicioViajeDto>> ActualizarServicio(
+        public async Task<ActionResult<ServicioViaje>> ActualizarServicio(
             int id,
-            [FromBody] ServicioViajeDto cambios)
+            [FromBody] ServicioViaje cambios)
         {
             if (id != cambios.IdServicio)
             {
                 return BadRequest(new { mensaje = "El identificador de la URL no coincide con el servicio." });
             }
 
-            var existente = await _context.ServicioViajeDto.FindAsync(id);
+            var existente = await _context.ServiciosViaje.FindAsync(id);
             if (existente == null)
             {
                 return NotFound(new { mensaje = "El servicio o viaje no existe." });
@@ -152,7 +125,7 @@ namespace ApiTransporte.Controllers
             return Ok(existente);
         }
 
-        private async Task<string?> ValidarServicio(ServicioViajeDto servicio)
+        private async Task<string?> ValidarServicio(ServicioViaje servicio)
         {
             if (string.IsNullOrWhiteSpace(servicio.Origen))
                 return "El origen es obligatorio.";
