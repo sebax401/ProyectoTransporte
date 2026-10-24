@@ -134,7 +134,7 @@ namespace ApiTransporte.Controllers
             await _context.SaveChangesAsync();
             return Ok(await ObtenerDto(id));
         }
-
+        
         private async Task<string?> ValidarServicio(ServicioViajeDto servicio)
         {
             if (string.IsNullOrWhiteSpace(servicio.Origen))
