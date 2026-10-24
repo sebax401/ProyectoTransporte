@@ -44,6 +44,8 @@ namespace ApiTransporte.Controllers
                 from servicio in consulta
                 join vehiculo in _context.Vehiculo.AsNoTracking()
                     on servicio.IdVehiculo equals vehiculo.IdVehiculo
+                join empleado in _context.Empleado.AsNoTracking() // Join con Empleado
+                    on servicio.IdEmpleado equals empleado.IdEmpleado
                 orderby servicio.FechaSalida
                 select new ServicioViajeDto
                 {
@@ -54,8 +56,9 @@ namespace ApiTransporte.Controllers
                     FechaLlegadaEstimada = servicio.FechaLlegadaEstimada,
                     Estado = servicio.Estado,
                     IdVehiculo = servicio.IdVehiculo,
-                    IdEmpleado = servicio.IdEmpleado,
                     PatenteVehiculo = vehiculo.Patente,
+                    IdEmpleado = servicio.IdEmpleado, // Mapeo de IdEmpleado
+                    NombreEmpleado = $"{empleado.Nombre} {empleado.Apellido}", // Opcional si tu DTO incluye el nombre
                     Observaciones = servicio.Observaciones
                 }).ToListAsync();
 
@@ -126,6 +129,7 @@ namespace ApiTransporte.Controllers
             existente.FechaLlegadaEstimada = cambios.FechaLlegadaEstimada;
             existente.Estado = NormalizarEstado(cambios.Estado);
             existente.IdVehiculo = cambios.IdVehiculo;
+            existente.IdEmpleado = cambios.IdEmpleado; // Asignación de IdEmpleado al actualizar
             existente.Observaciones = string.IsNullOrWhiteSpace(cambios.Observaciones)
                 ? null
                 : cambios.Observaciones.Trim();
@@ -163,6 +167,12 @@ namespace ApiTransporte.Controllers
             if (!vehiculoExiste)
                 return "Debe seleccionar un vehículo registrado.";
 
+            // Validación de existencia del Empleado / Conductor
+            var empleadoExiste = await _context.Empleado
+                .AnyAsync(e => e.IdEmpleado == servicio.IdEmpleado);
+            if (!empleadoExiste)
+                return "Debe seleccionar un conductor/empleado registrado.";
+
             if (!string.IsNullOrWhiteSpace(servicio.Observaciones) && servicio.Observaciones.Length > 500)
                 return "Las observaciones no pueden superar los 500 caracteres.";
 
@@ -182,6 +192,8 @@ namespace ApiTransporte.Controllers
                 from servicio in _context.ServiciosViaje.AsNoTracking()
                 join vehiculo in _context.Vehiculo.AsNoTracking()
                     on servicio.IdVehiculo equals vehiculo.IdVehiculo
+                join empleado in _context.Empleado.AsNoTracking() // Join con Empleado
+                    on servicio.IdEmpleado equals empleado.IdEmpleado
                 where servicio.IdServicio == id
                 select new ServicioViajeDto
                 {
@@ -193,6 +205,8 @@ namespace ApiTransporte.Controllers
                     Estado = servicio.Estado,
                     IdVehiculo = servicio.IdVehiculo,
                     PatenteVehiculo = vehiculo.Patente,
+                    IdEmpleado = servicio.IdEmpleado, // Mapeo de IdEmpleado
+                    NombreEmpleado = $"{empleado.Nombre} {empleado.Apellido}", // Opcional
                     Observaciones = servicio.Observaciones
                 }).SingleOrDefaultAsync();
         }
