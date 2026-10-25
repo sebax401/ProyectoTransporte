@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiTransporte.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261024024911_ResetInicial")]
-    partial class ResetInicial
+    [Migration("20261025152130_CambiosenTablaReportes")]
+    partial class CambiosenTablaReportes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,6 +90,10 @@ namespace ApiTransporte.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NombreRepuesto")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubTipoReporte")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TipoReporte")

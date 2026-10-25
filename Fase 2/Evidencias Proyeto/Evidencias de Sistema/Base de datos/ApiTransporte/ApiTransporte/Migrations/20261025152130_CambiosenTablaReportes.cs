@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ApiTransporte.Migrations
 {
     /// <inheritdoc />
-    public partial class ResetInicial : Migration
+    public partial class CambiosenTablaReportes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -68,6 +68,7 @@ namespace ApiTransporte.Migrations
                     IdReporte = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     TipoReporte = table.Column<string>(type: "TEXT", nullable: false),
+                    SubTipoReporte = table.Column<string>(type: "TEXT", nullable: false),
                     FechaGeneracion = table.Column<string>(type: "TEXT", nullable: false),
                     Descripcion = table.Column<string>(type: "TEXT", nullable: true),
                     NombreRepuesto = table.Column<string>(type: "TEXT", nullable: true),

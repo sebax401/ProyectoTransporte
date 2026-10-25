@@ -89,6 +89,10 @@ namespace ApiTransporte.Migrations
                     b.Property<string>("NombreRepuesto")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("SubTipoReporte")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("TipoReporte")
                         .IsRequired()
                         .HasColumnType("TEXT");
