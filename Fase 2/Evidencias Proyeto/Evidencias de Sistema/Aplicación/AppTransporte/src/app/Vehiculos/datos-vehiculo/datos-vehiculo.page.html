@@ -239,9 +239,11 @@
         </ion-card-header>
 
         <ion-card-content>
-          <p>{{ reporte.descripcion }}</p>
+          <p><strong>Tipo:</strong>{{ reporte.tipoReporte }}</p>
+          <p><strong>Sub Tipo:</strong>{{ reporte.subTipoReporte }}</p>
+          <p><strong>Descripcion:</strong>{{ reporte.descripcion }}</p>
           <p><strong>Fecha:</strong> {{ reporte.fechaGeneracion | date:'dd/MM/yyyy' }}</p>
-
+          
           <p *ngIf="reporte.valorRepuesto === null" class="estado-pendiente">
             Pendiente de repuesto
           </p>
@@ -315,7 +317,7 @@
           </ion-item>
 
           <ion-item *ngIf="reporte.tipoReporte === 'falla'">
-            <ion-select label="Tipo de Falla" placeholder="Seleccione" [(ngModel)]="subTipo">
+            <ion-select label="Tipo de Falla" placeholder="Seleccione" [(ngModel)]="reporte.subTipoReporte">
               <ion-select-option value="Motor">Motor</ion-select-option>
               <ion-select-option value="Frenos">Frenos</ion-select-option>
               <ion-select-option value="Eléctrica">Eléctrica</ion-select-option>
@@ -325,7 +327,7 @@
           </ion-item>
 
           <ion-item *ngIf="reporte.tipoReporte === 'mantencion'">
-            <ion-select label="Tipo de Mantención" placeholder="Seleccione" [(ngModel)]="subTipo">
+            <ion-select label="Tipo de Mantención" placeholder="Seleccione" [(ngModel)]="reporte.subTipoReporte">
               <ion-select-option value="Cambio de aceite">Cambio de Aceite</ion-select-option>
               <ion-select-option value="Cambio de filtros">Cambio de Filtros</ion-select-option>
               <ion-select-option value="Cambio de pastillas">Cambio de Pastillas</ion-select-option>
@@ -334,7 +336,7 @@
           </ion-item>
 
           <ion-item *ngIf="reporte.tipoReporte === 'revision'">
-            <ion-select label="Tipo de Revisión" placeholder="Seleccione" [(ngModel)]="subTipo">
+            <ion-select label="Tipo de Revisión" placeholder="Seleccione" [(ngModel)]="reporte.subTipoReporte">
               <ion-select-option value="Revisión técnica">Revisión Técnica</ion-select-option>
               <ion-select-option value="Permiso de circulación">Permiso de Circulación</ion-select-option>
               <ion-select-option value="Seguro">Seguro</ion-select-option>

@@ -19,7 +19,7 @@ import {
 import { VehiculoService, Vehiculo } from '../services/vehiculo';
 import { EmpleadoService, Empleado } from '../services/empleado';
 import { ServicioViajeService, ServicioViajeRequest } from '../services/servicio-viaje';
-
+import { ReporteService, Reporte } from '../services/reporte';
 @Component({
   selector: 'app-carga-excel',
   templateUrl: './cargartablas.page.html',
@@ -51,10 +51,15 @@ export class CargaExcelPage {
   serviciosParaSubir: ServicioViajeRequest[] = [];
   cargandoServicios = false;
 
+   // Variables para Reportes/mantenimiento
+  ReportesParaSubir: Reporte[] = [];
+  cargandoReportes = false;
+
   constructor(
     private vehiculoService: VehiculoService,
     private empleadoService: EmpleadoService,
-    private servicioViajeService: ServicioViajeService
+    private servicioViajeService: ServicioViajeService,
+    private reporteService: ReporteService
   ) {}
 
   // ==========================================
@@ -228,4 +233,60 @@ export class CargaExcelPage {
       }
     });
   }
+
+  // ==========================================
+  // SECCIÓN: Reportes /mantenimientos
+  // ==========================================
+  onReportesFileChange(event: any) {
+      const target: DataTransfer = <DataTransfer>(event.target);
+      if (target.files.length !== 1) {
+        alert('Solo puedes subir un archivo a la vez');
+        return;
+      }
+
+      const reader: FileReader = new FileReader();
+      reader.onload = (e: any) => {
+        const arrayBuffer = e.target.result;
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const hoja = workbook.Sheets[workbook.SheetNames[0]];
+        const datosExcel = XLSX.utils.sheet_to_json(hoja);
+
+        this.ReportesParaSubir = datosExcel.map((fila: any): Reporte => ({
+          idReporte: 0,
+          tipoReporte: String(fila.tipoReporte || '').trim(),
+          subTipoReporte:String(fila.subTipoReporte || '').trim(),
+          fechaGeneracion: fila.fechaGeneracion ? new Date(fila.fechaGeneracion).toISOString(): null!,
+          descripcion: String(fila.descripcion || '').trim(),
+          idVehiculo: Number(fila.IdVehiculo || fila.idVehiculo || 0),
+          nombreRepuesto: String(fila.TipoContrato || '').trim(),
+          valorRepuesto: Number(fila.ValorRepuesto || fila.valorRepuesto || 0),
+          lugarCompra: String(fila.TipoContrato || '').trim(),
+          
+        }));
+      };
+      reader.readAsArrayBuffer(target.files[0]);
+  }
+
+  subirReportes() {
+    if (this.ReportesParaSubir.length === 0) return;
+    this.cargandoReportes = true;
+
+    const peticiones = this.ReportesParaSubir.map(Reporte => 
+      this.reporteService.crearReporte(Reporte)
+    );
+
+    forkJoin(peticiones).subscribe({
+      next: () => {
+        this.cargandoReportes = false;
+        alert(`${this.ReportesParaSubir.length} servicios/viajes cargados correctamente.`);
+        this.ReportesParaSubir = [];
+      },
+      error: (err) => {
+        this.cargandoReportes = false;
+        console.error('Error al subir los reportes:', err);
+        alert('Ocurrió un error al cargar algunos reportes. Revisa la consola.');
+      }
+    });
+  }
+
 }

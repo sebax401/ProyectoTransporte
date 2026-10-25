@@ -1,0 +1,30 @@
+<div class="ion-page" id="main-content">
+
+  <ion-header>
+    <ion-toolbar>
+
+    <ion-title slot="start" class="ion-hide-md-down" >
+      <a routerLink="/Home" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
+      <a routerLink="/ListarVehiculos" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
+      <a routerLink="/empleados" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
+    </ion-title>
+
+    <div slot="end" class="ion-hide-md-down" style="padding-right: 16px;">
+        <a (click)="logout()" style="color: white; text-decoration: none; font-weight: normal; cursor: pointer;">Cerrar Sesión</a>
+    </div>
+
+    <ion-title class="ion-hide-md-up">ReportesVehiculos</ion-title>
+
+    <ion-buttons slot="end" class="ion-hide-md-up">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+        
+    </ion-toolbar>
+  </ion-header>
+<ion-content [fullscreen]="true">
+
+        
+
+  </ion-content>
+
+</div>

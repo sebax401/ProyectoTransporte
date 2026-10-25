@@ -11,6 +11,7 @@ export interface Reporte{
   
   idReporte: number;
   tipoReporte: string;
+  subTipoReporte:string,
   fechaGeneracion: string;
   descripcion: string;
   idVehiculo: number;

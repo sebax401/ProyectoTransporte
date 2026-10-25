@@ -70,5 +70,26 @@
       </ion-button>
     </ion-card-content>
   </ion-card>
+  <!-- SECCIÓN DE Reportes -->
+  <ion-card class="ion-margin-top">
+    <ion-card-header>
+      <ion-card-title>Carga de Reportes/mantenimientos</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <input type="file" (change)="onReportesFileChange($event)" accept=".xlsx, .xls" />
+
+      <p *ngIf="ReportesParaSubir.length > 0">
+        Servicios detectados: {{ ReportesParaSubir.length }}
+      </p>
+
+      <ion-button expand="block" 
+                  color="tertiary"
+                  (click)="subirReportes()" 
+                  [disabled]="ReportesParaSubir.length === 0 || cargandoReportes">
+        <ion-spinner *ngIf="cargandoReportes" name="crescent"></ion-spinner>
+        {{ cargandoReportes ? 'Guardando Reportes...' : 'Subir Reportes' }}
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
 
 </ion-content>

@@ -36,11 +36,6 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'generar-reporte',
-    loadComponent: () => import('./generar-reporte/generar-reporte.page').then( m => m.GenerarReportePage),
-    canActivate: [authGuard]
-  },
-  {
   path: 'empleados',
   loadComponent: () =>
     import('./empleados/empleados.page')
@@ -60,6 +55,11 @@ export const routes: Routes = [
   {
     path: 'cargar-tablas',
     loadComponent: () => import('./CargarTablas/cargartablas.page').then( m => m.CargaExcelPage),
+    canActivate: [authGuard]
+  },
+    {
+    path: 'ReportesVehiculos',
+    loadComponent: () => import('./ReportesVehiculos/reportesvehiculos.page').then( m => m.reportesvehiculosPage),
     canActivate: [authGuard]
   }
 

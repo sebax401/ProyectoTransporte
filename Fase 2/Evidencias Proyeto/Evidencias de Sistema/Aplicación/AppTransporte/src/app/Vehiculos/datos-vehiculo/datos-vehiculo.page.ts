@@ -33,6 +33,7 @@ export class DatosVehiculoPage implements OnInit {
     reporte = {
       idReporte: 0,
       tipoReporte: "falla",
+      subTipoReporte: "Motor",
       fechaGeneracion: "...",
       descripcion: "",
       idVehiculo: 1,
@@ -187,11 +188,12 @@ export class DatosVehiculoPage implements OnInit {
     const idVehiculo = Number(this.route.snapshot.paramMap.get('id'));
 
     const descripcionFinal =
-      `${this.reporte.tipoReporte} - ${this.subTipo}: ${this.reporte.descripcion}`;
+      `${this.reporte.descripcion}`;
 
     const reporteEnviar = {
       idReporte: 0,
       tipoReporte: this.reporte.tipoReporte,
+      subTipoReporte :this.reporte.subTipoReporte,
       fechaGeneracion: new Date().toISOString(),
       descripcion: descripcionFinal,
       idVehiculo: idVehiculo,
