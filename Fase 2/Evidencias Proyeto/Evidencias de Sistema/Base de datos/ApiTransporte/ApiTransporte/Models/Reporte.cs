@@ -9,6 +9,7 @@ namespace ApiTransporte.Models
         public int IdReporte { get; set; }
 
         public string TipoReporte { get; set; } = string.Empty;
+        public string SubTipoReporte { get; set; } = string.Empty;
         public string FechaGeneracion { get; set; } = string.Empty;
         public string? Descripcion { get; set; }
         public string? NombreRepuesto { get; set; }
