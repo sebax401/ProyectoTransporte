@@ -61,6 +61,11 @@ export const routes: Routes = [
     path: 'ReportesVehiculos',
     loadComponent: () => import('./ReportesVehiculos/reportesvehiculos.page').then( m => m.reportesvehiculosPage),
     canActivate: [authGuard]
-  }
+  },
+  {
+    path: 'DetalleReporte/:id',
+    loadComponent: () => import('./ReportesVehiculos/DetalleReporte/detalleReporte.page').then(m => m.DetalleReportePage),
+    canActivate: [authGuard]
+  },
 
 ];

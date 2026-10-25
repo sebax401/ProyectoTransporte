@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+    </ion-buttons>
+    <ion-title>Detalle del Reporte</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div style="max-width: 500px; margin: 0 auto;" *ngIf="reporte">
+    
+    <ion-card style="margin: 0;">
+      <ion-card-header>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <ion-card-title style="font-size: 1.2rem; font-weight: bold;">
+            {{ reporte.vehiculoInfo || reporte.patenteOnly }}
+          </ion-card-title>
+          <ion-badge [color]="reporte.tipoReporte?.toLowerCase() === 'falla' ? 'danger' : 'success'">
+            {{ reporte.tipoReporte }}
+          </ion-badge>
+        </div>
+        <ion-card-subtitle style="margin-top: 6px;">
+          Fecha: {{ reporte.fechaGeneracion | date:'dd/MM/yyyy' }}
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-list lines="full">
+
+          <ion-item>
+            <ion-label>
+              <h3 style="color: #666; font-size: 0.85rem;">Lugar de Compra</h3>
+              <p style="font-size: 1rem; color: #1a1a1a;">{{ reporte.lugarCompra || 'N/A' }}</p>
+            </ion-label>
+          </ion-item>
+
+          <ion-item>
+            <ion-label>
+              <h3 style="color: #666; font-size: 0.85rem;">Valor del Repuesto</h3>
+              <p style="font-size: 1.1rem; color: #2dd36f; font-weight: bold;">
+                {{ reporte.valorRepuesto ? ('$' + reporte.valorRepuesto) : 'Pendiente' }}
+              </p>
+            </ion-label>
+          </ion-item>
+
+          <ion-item *ngIf="reporte.subTipoReporte">
+            <ion-label>
+              <h3 style="color: #666; font-size: 0.85rem;">Tipo</h3>
+              <p style="font-size: 1rem; color: #1a1a1a;">{{ reporte.tipoReporte }} - {{ reporte.subTipoReporte }}</p>
+            </ion-label>
+          </ion-item>
+
+          <ion-item *ngIf="reporte.nombreRepuesto">
+            <ion-label>
+              <h3 style="color: #666; font-size: 0.85rem;">Repuesto</h3>
+              <p style="font-size: 1rem; color: #1a1a1a;">{{ reporte.nombreRepuesto }}</p>
+            </ion-label>
+          </ion-item>
+
+          <ion-item lines="none">
+            <ion-label class="ion-text-wrap">
+              <h3 style="color: #666; font-size: 0.85rem;">Descripción</h3>
+              <p style="margin-top: 4px; font-size: 0.95rem; color: #333;">
+                {{ reporte.descripcion || 'Sin descripción adicional.' }}
+              </p>
+            </ion-label>
+          </ion-item>
+
+        </ion-list>
+
+        <div style="margin-top: 20px;">
+          <ion-button expand="block" color="warning" (click)="volver()">
+            Volver
+          </ion-button>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

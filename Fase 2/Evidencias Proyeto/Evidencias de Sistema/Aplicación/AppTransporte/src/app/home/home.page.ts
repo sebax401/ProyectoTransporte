@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { 
   IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, 
   IonTitle, IonMenuButton, IonButton, IonButtons, IonToolbar, IonHeader, IonSearchbar, 
-  IonRefresher, IonRefresherContent, IonChip, IonLabel, IonIcon 
+  IonRefresher, IonRefresherContent, IonChip, IonLabel, IonIcon, IonGrid, IonRow, IonCol, IonItem, IonAvatar, IonList, IonMenuToggle, IonFooter, IonText
 } from '@ionic/angular/standalone';
 
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -24,10 +24,23 @@ import { BarralateralComponent } from '../BarraLateral/barralateral.component';
     IonMenuButton,
     IonContent,
     BarralateralComponent,
-    IonIcon
+    IonIcon,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardContent,
+    IonButton,
   ]
 })
 export class HomePage {
+  totalVehiculos = 0;
+  vehiculosOperativos = 0;
+  mantenimientosPendientes = 0;
+  totalEmpleados = 0;
 
   constructor(
     private router: Router,

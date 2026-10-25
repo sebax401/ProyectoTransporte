@@ -1,30 +1,227 @@
+<app-barralateral></app-barralateral>
+
 <div class="ion-page" id="main-content">
 
   <ion-header>
     <ion-toolbar>
 
-    <ion-title slot="start" class="ion-hide-md-down" >
-      <a routerLink="/Home" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
-      <a routerLink="/ListarVehiculos" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
-      <a routerLink="/empleados" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
-    </ion-title>
+      <ion-title slot="start" class="ion-hide-md-down">
+        <a routerLink="/Home"
+          style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
+        <a routerLink="/ListarVehiculos"
+          style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
+        <a routerLink="/empleados"
+          style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
+      </ion-title>
 
-    <div slot="end" class="ion-hide-md-down" style="padding-right: 16px;">
-        <a (click)="logout()" style="color: white; text-decoration: none; font-weight: normal; cursor: pointer;">Cerrar Sesión</a>
-    </div>
+      <div slot="end" class="ion-hide-md-down" style="padding-right: 16px;">
+        <a (click)="logout()" style="color: white; text-decoration: none; font-weight: normal; cursor: pointer;">Cerrar
+          Sesión</a>
+      </div>
 
-    <ion-title class="ion-hide-md-up">ReportesVehiculos</ion-title>
+      <ion-title class="ion-hide-md-up">Reportes Vehículos</ion-title>
 
-    <ion-buttons slot="end" class="ion-hide-md-up">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-        
+      <ion-buttons slot="end" class="ion-hide-md-up">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+
     </ion-toolbar>
   </ion-header>
-<ion-content [fullscreen]="true">
 
-        
+  <ion-content [fullscreen]="true" class="ion-padding">
+
+    <div style="max-width: 1600px; width: 100%; margin: 0 auto;">
+
+      <ion-card style="width: 100%; margin: 0;">
+
+        <!-- Encabezado con título y filtros que se acomodan en celulares -->
+        <div
+          style="display: flex; justify-content: space-between; align-items: flex-end; padding: 16px; flex-wrap: wrap; gap: 12px;">
+
+          <!-- Lado Izquierdo: Título -->
+          <div style="min-width: 250px;">
+            <h2 style="margin: 0; font-weight: bold; font-size: 1.3rem; color: #1a1a1a;">Historial de Reportes e
+              Incidencias</h2>
+            <p style="margin: 4px 0 0 0; color: #666; font-size: 0.9rem;">Listado consolidado de mantenimientos, fallas
+              y repuestos</p>
+          </div>
+
+          <!-- Lado Derecho: Controles de Fecha + Botones Adaptables -->
+          <div style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 550px;">
+
+            <div style="display: flex; flex-direction: column; flex: 1; min-width: 110px;">
+              <label style="font-size: 0.8rem; color: #666; margin-bottom: 2px; font-weight: 500;">Desde</label>
+              <input type="date" [(ngModel)]="fechaDesde"
+                style="border: none; border-bottom: 1.5px solid #ccc; padding: 4px 0; font-size: 0.9rem; outline: none; background: transparent; width: 100%;" />
+            </div>
+
+            <div style="display: flex; flex-direction: column; flex: 1; min-width: 110px;">
+              <label style="font-size: 0.8rem; color: #666; margin-bottom: 2px; font-weight: 500;">Hasta</label>
+              <input type="date" [(ngModel)]="fechaHasta"
+                style="border: none; border-bottom: 1.5px solid #ccc; padding: 4px 0; font-size: 0.9rem; outline: none; background: transparent; width: 100%;" />
+            </div>
+
+            <button (click)="limpiarFiltroFechas()"
+              style="background: transparent; border: none; color: #666; font-size: 0.85rem; cursor: pointer; padding-bottom: 6px; font-weight: 500;">
+              Limpiar
+            </button>
+
+            <!-- Botón PDF siempre visible -->
+            <ion-button color="warning" (click)="exportarPDF()" [disabled]="reportesFiltrados.length === 0" size="small"
+              style="margin: 0;">
+              <ion-icon slot="end" name="download-outline"></ion-icon>
+              Exportar PDF
+            </ion-button>
+
+          </div>
+        </div>
+
+        <ion-card-content style="padding: 12px 16px 20px 16px;">
+
+          <!-- Barra de búsqueda -->
+          <ion-searchbar [(ngModel)]="textoBusqueda" placeholder="Buscar por matrícula..." animated="true"
+            debounce="200" style="padding-left: 0; padding-right: 0;">
+          </ion-searchbar>
+
+          <!-- Indicador de Carga -->
+          <div *ngIf="cargandoLista" style="text-align: center; padding: 30px;">
+            <ion-spinner name="crescent"></ion-spinner>
+            <p style="font-size: 1rem; color: #555;">Cargando reportes...</p>
+          </div>
+
+          <!-- Mensajes de Error -->
+          <p *ngIf="mensaje" [style.color]="tipoMensaje === 'danger' ? 'red' : 'green'" style="font-size: 0.95rem;">
+            {{ mensaje }}
+          </p>
+
+          <!-- ======================================================= -->
+          <!-- 1. TABLA MÓVIL (VISIBLE SOLO EN TELÉFONOS: ion-hide-md-up) -->
+          <!-- ======================================================= -->
+<div class="ion-hide-md-up" *ngIf="!cargandoLista" style="width: 100%; margin-top: 10px;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+    <thead>
+      <tr style="background-color: #2dd36f; color: white; border-bottom: 2px solid #24b25d;">
+        <th (click)="ordenarPor('patenteOnly')" style="padding: 8px 6px; cursor: pointer; text-align: center;">
+          Vehículo
+          <span *ngIf="columnaOrden === 'patenteOnly'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+        </th>
+        <th (click)="ordenarPor('valorRepuesto')" style="padding: 8px 6px; cursor: pointer; text-align: center;">
+          Valor
+          <span *ngIf="columnaOrden === 'valorRepuesto'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+        </th>
+        <th (click)="ordenarPor('fechaGeneracion')" style="padding: 8px 6px; cursor: pointer; text-align: center;">
+          Fecha
+          <span *ngIf="columnaOrden === 'fechaGeneracion'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+        </th>
+        <th (click)="ordenarPor('tipoReporte')" style="padding: 8px 6px; cursor: pointer; text-align: center;">
+          Tipo
+          <span *ngIf="columnaOrden === 'tipoReporte'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of reportesFiltrados; let i = index"
+        (click)="verDetalleReporte(r)"
+        [style.background-color]="i % 2 === 0 ? '#ffffff' : '#f8f9fa'"
+        style="border-bottom: 1px solid #e0e0e0; cursor: pointer;">
+
+        <!-- Solo Matrícula -->
+        <td style="padding: 8px 6px; text-align: center;"><strong>{{ r.patenteOnly || ('ID: ' + r.idVehiculo) }}</strong></td>
+
+        <!-- Valor Repuesto -->
+        <td style="padding: 8px 6px; text-align: center;">{{ r.valorRepuesto ? ('$' + r.valorRepuesto) : 'Pendiente' }}</td>
+
+        <!-- Fecha -->
+        <td style="padding: 8px 6px; text-align: center; white-space: nowrap;">{{ r.fechaGeneracion | date:'dd/MM/yy' }}</td>
+
+        <!-- Tipo / Subtipo -->
+        <td style="padding: 8px 6px; text-align: center; text-transform: capitalize;">
+          <strong>{{ r.tipoReporte }}</strong>
+          <span *ngIf="r.subTipoReporte" style="color: #666; font-size: 0.78rem;"><br>{{ r.subTipoReporte }}</span>
+        </td>
+      </tr>
+
+      <tr *ngIf="reportesFiltrados.length === 0">
+        <td colspan="4" style="text-align: center; padding: 20px; color: #777; font-size: 0.85rem;">
+          No se encontraron reportes.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+          <!-- ======================================================= -->
+          <!-- 2. TABLA ESCRITORIO (VISIBLE SOLO EN ESCRITORIO: ion-hide-md-down) -->
+          <!-- ======================================================= -->
+          <div class="ion-hide-md-down" *ngIf="!cargandoLista" style="width: 100%; overflow-x: auto; margin-top: 10px;">
+            <table
+              style="width: 100%; min-width: 850px; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+              <thead>
+                <tr style="background-color: #2dd36f; color: white; border-bottom: 2px solid #24b25d;">
+                  <th (click)="ordenarPor('lugarCompra')"
+                    style="padding: 14px 10px; cursor: pointer; font-size: 0.95rem;">
+                    Lugar de Compra
+                    <span *ngIf="columnaOrden === 'lugarCompra'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+                  </th>
+                  <th (click)="ordenarPor('valorRepuesto')"
+                    style="padding: 14px 10px; cursor: pointer; font-size: 0.95rem;">
+                    Valor Repuesto
+                    <span *ngIf="columnaOrden === 'valorRepuesto'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+                  </th>
+                  <th (click)="ordenarPor('vehiculoInfo')"
+                    style="padding: 14px 10px; cursor: pointer; font-size: 0.95rem;">
+                    Vehículo (Matrícula - Modelo)
+                    <span *ngIf="columnaOrden === 'vehiculoInfo'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+                  </th>
+                  <th (click)="ordenarPor('fechaGeneracion')"
+                    style="padding: 14px 10px; cursor: pointer; font-size: 0.95rem;">
+                    Fecha Generación
+                    <span *ngIf="columnaOrden === 'fechaGeneracion'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+                  </th>
+                  <th (click)="ordenarPor('tipoReporte')"
+                    style="padding: 14px 10px; cursor: pointer; font-size: 0.95rem;">
+                    Tipo ⇅
+                    <span *ngIf="columnaOrden === 'tipoReporte'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+                  </th>
+                  <th (click)="ordenarPor('subTipoReporte')"
+                    style="padding: 14px 10px; cursor: pointer; font-size: 0.95rem;">
+                    Subtipo ⇅
+                    <span *ngIf="columnaOrden === 'subTipoReporte'">{{ ordenAscendente ? '▲' : '▼' }}</span>
+                  </th>
+                  <th style="padding: 14px 10px; font-size: 0.95rem;">Repuesto / Descripción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of reportesFiltrados; let i = index"
+                  [style.background-color]="i % 2 === 0 ? '#ffffff' : '#f8f9fa'"
+                  style="border-bottom: 1px solid #e0e0e0;">
+
+                  <td style="padding: 12px 10px;">{{ r.lugarCompra || 'N/A' }}</td>
+                  <td style="padding: 12px 10px;">{{ r.valorRepuesto ? ('$' + r.valorRepuesto) : 'Pendiente' }}</td>
+                  <td style="padding: 12px 10px;"><strong>{{ r.vehiculoInfo }}</strong></td>
+                  <td style="padding: 12px 10px;">{{ r.fechaGeneracion | date:'dd/MM/yyyy' }}</td>
+                  <td style="padding: 12px 10px; text-transform: capitalize;"><strong>{{ r.tipoReporte }}</strong></td>
+                  <td style="padding: 12px 10px;">{{ r.subTipoReporte || 'N/A' }}</td>
+                  <td style="padding: 12px 10px;">
+                    <span *ngIf="r.nombreRepuesto"><strong>{{ r.nombreRepuesto }}:</strong> </span>
+                    {{ r.descripcion }}
+                  </td>
+                </tr>
+
+                <tr *ngIf="reportesFiltrados.length === 0">
+                  <td colspan="7" style="text-align: center; padding: 30px; color: #777; font-size: 1rem;">
+                    No se encontraron reportes en el rango de fechas seleccionado.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+
+    </div>
 
   </ion-content>
-
 </div>

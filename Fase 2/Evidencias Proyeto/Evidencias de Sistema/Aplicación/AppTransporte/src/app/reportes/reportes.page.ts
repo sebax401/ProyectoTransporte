@@ -92,7 +92,7 @@ export class ReportesPage implements OnInit {
       idReporte: 0,
       tipoReporte: this.reporte.tipoReporte,
       subTipoReporte : this.reporte.subTipoReporte,
-      fechaGeneracion: new Date().toISOString(),
+      fechaGeneracion: '',
       descripcion: descripcionFinal,
       idVehiculo: idVehiculo,
       nombreRepuesto: '',

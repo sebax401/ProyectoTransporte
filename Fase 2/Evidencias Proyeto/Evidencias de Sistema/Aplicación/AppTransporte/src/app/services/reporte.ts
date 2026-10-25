@@ -39,8 +39,11 @@ export class ReporteService {
       'Authorization': `Bearer ${token}`
     });
   }
-    
-
+  obtenerReportesVehiculos(): Observable<Reporte[]> {
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers => this.http.get<Reporte[]>(this.apiUrl, { headers }))
+    );
+  }
   obtenerReportesVehiculo(idVehiculo: number): Observable<Reporte[]> {
     return from(this.getAuthHeaders()).pipe(
       switchMap(headers => this.http.get<Reporte[]>(`${this.apiUrl}/vehiculo/${idVehiculo}`, { headers }))
