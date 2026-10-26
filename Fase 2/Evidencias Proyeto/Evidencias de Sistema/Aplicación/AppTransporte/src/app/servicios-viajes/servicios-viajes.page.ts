@@ -19,9 +19,11 @@ import {
   IonSpinner,
   IonTextarea,
   IonTitle,
-  IonToolbar
+  IonToolbar,
+  IonMenuButton
 } from '@ionic/angular/standalone';
 import { HttpErrorResponse } from '@angular/common/http';
+import { BarralateralComponent } from '../BarraLateral/barralateral.component';
 import { ServicioViaje, ServicioViajeRequest, ServicioViajeService, EstadoServicio } from '../services/servicio-viaje';
 import { Vehiculo, VehiculoService } from '../services/vehiculo';
 import { Empleado, EmpleadoService } from '../services/empleado'
@@ -44,6 +46,7 @@ interface FormularioServicio {
   imports: [
     CommonModule,
     FormsModule,
+    BarralateralComponent,
     IonBadge,
     IonButton,
     IonButtons,
@@ -61,7 +64,8 @@ interface FormularioServicio {
     IonSpinner,
     IonTextarea,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    IonMenuButton
   ]
 })
 export class ServiciosViajesPage implements OnInit, OnDestroy {
