@@ -76,6 +76,10 @@ namespace ApiTransporte.Migrations
                     b.Property<string>("Descripcion")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("FechaGeneracion")
                         .IsRequired()
                         .HasColumnType("TEXT");

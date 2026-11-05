@@ -1,33 +1,132 @@
-ion-card {
-  padding: 6px;
-}
 
-ion-card-title {
-  font-size: 28px;
-}
-
-ion-card-content {
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-.vehiculo-card {
-  border-left: 6px solid #16a34a;
-}
-
-.vehiculo-info {
-  margin-top: 10px;
-}
-
-.vehiculo-info p {
-  margin: 4px 0;
-  color: #374151 !important;
-}
 :host {
   display: block;
   height: 100%;
 }
 
-.card-actions {
-  margin-top: 12px;
+ion-toolbar {
+  --background: var(--ion-color-primary);
+  --color: white;
+}
+
+.menu-link {
+  color: white;
+  text-decoration: none;
+  margin-right: 15px;
+  font-weight: normal;
+}
+
+.logout-container {
+  padding-right: 16px;
+}
+
+.logout-link {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dashboard-header {
+  margin: 15px 0 25px;
+}
+
+.dashboard-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.dashboard-header p {
+  color: var(--ion-color-medium);
+  margin-top: 0;
+}
+
+.stat-card {
+  height: calc(100% - 16px);
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card ion-icon {
+  font-size: 34px;
+  margin-bottom: 8px;
+}
+
+.stat-card p {
+  color: var(--ion-color-medium);
+  margin: 5px 0;
+}
+
+.stat-card h2 {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+ion-card {
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+ion-card-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.dashboard-item {
+  padding: 13px 5px;
+  border-bottom: 1px solid var(--ion-color-light);
+}
+
+.dashboard-item:last-child {
+  border-bottom: none;
+}
+
+.dashboard-item strong {
+  font-size: 16px;
+}
+
+.dashboard-item p {
+  margin: 5px 0;
+  color: var(--ion-color-medium-shade);
+}
+
+.estado-falla {
+  display: inline-block;
+  margin-top: 5px;
+  color: var(--ion-color-danger);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.estado-servicio {
+  display: inline-block;
+  margin-top: 5px;
+  color: var(--ion-color-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mensaje-dashboard,
+.mensaje-error {
+  padding: 18px;
+  margin: 15px 0;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.mensaje-dashboard {
+  background: var(--ion-color-light);
+}
+
+.mensaje-error {
+  color: var(--ion-color-danger);
+  background: var(--ion-color-danger-tint);
+}
+
+.ultima-actualizacion {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin-top: 5px;
 }

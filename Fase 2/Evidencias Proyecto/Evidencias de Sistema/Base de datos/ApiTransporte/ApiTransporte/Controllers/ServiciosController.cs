@@ -127,6 +127,11 @@ namespace ApiTransporte.Controllers
 
         private async Task<string?> ValidarServicio(ServicioViaje servicio)
         {
+            var empleadoExiste = await _context.Empleados.AnyAsync(e => e.IdEmpleado == servicio.IdEmpleado);
+
+            if (!empleadoExiste)
+                return "Debe seleccionar un empleado registrado.";
+
             if (string.IsNullOrWhiteSpace(servicio.Origen))
                 return "El origen es obligatorio.";
 

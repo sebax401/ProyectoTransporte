@@ -59,5 +59,27 @@ namespace ApiTransporte.Controllers
 
             return NoContent();
         }
+
+        [HttpPatch("{id}/estado")]
+        public async Task<IActionResult> ActualizarEstadoReporte(int id, [FromBody] string estado)
+        {
+            var reporte = await _context.Reporte.FindAsync(id);
+
+            if (reporte == null)
+            {
+                return NotFound("No se encontró el reporte.");
+            }
+
+            if (estado != "Pendiente" && estado != "Solucionada")
+            {
+                return BadRequest("El estado debe ser Pendiente o Solucionada.");
+            }
+
+            reporte.Estado = estado;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(reporte);
+        }
     }
 }

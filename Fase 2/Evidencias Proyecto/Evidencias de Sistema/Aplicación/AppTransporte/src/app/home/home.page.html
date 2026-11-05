@@ -1,5 +1,3 @@
-
-
 <div class="ion-page" id="main-content">
 
   <ion-header>
@@ -23,88 +21,202 @@
         
     </ion-toolbar>
   </ion-header>
-<ion-content class="ion-padding">
 
-  <div class="dashboard-header">
-    <h1>Panel de control</h1>
-    <p>Resumen general de la flota de transporte</p>
-  </div>
+  <ion-content class="ion-padding">
 
-  <ion-grid>
-    <ion-row>
+    <!-- ENCABEZADO -->
+    <div class="dashboard-header">
+      <h1>Panel de control</h1>
+      <p>Resumen general de la flota de transporte</p>
+      <p class="ultima-actualizacion" *ngIf="ultimaActualizacion">
+        Última actualización:
+        {{ ultimaActualizacion | date:'dd/MM/yyyy HH:mm:ss' }}
+      </p>
+    </div>
 
-      <ion-col size="12" size-md="6" size-xl="3">
-        <ion-card class="stat-card">
-          <ion-card-content>
-            <ion-icon
-              name="car-outline"
-              color="primary">
-            </ion-icon>
-            <p>Total de vehículos</p>
-            <h2>{{ totalVehiculos }}</h2>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+    <!-- CARGANDO -->
+    <div *ngIf="cargando" class="mensaje-carga">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando información del dashboard...</p>
+    </div>
 
-      <ion-col size="12" size-md="6" size-xl="3">
-        <ion-card class="stat-card">
-          <ion-card-content>
-            <ion-icon
-              name="checkmark-circle-outline"
-              color="success">
-            </ion-icon>
-            <p>Vehículos operativos</p>
-            <h2>{{ vehiculosOperativos }}</h2>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+    <!-- ERROR -->
+    <ion-card color="danger" *ngIf="errorDashboard">
+      <ion-card-content>
+        {{ errorDashboard }}
+      </ion-card-content>
+    </ion-card>
 
-      <ion-col size="12" size-md="6" size-xl="3">
-        <ion-card class="stat-card">
-          <ion-card-content>
-            <ion-icon
-              name="construct-outline"
-              color="warning">
-            </ion-icon>
-            <p>Mantenimientos pendientes</p>
-            <h2>{{ mantenimientosPendientes }}</h2>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+    <!-- INDICADORES -->
+    <ion-grid *ngIf="!cargando && !errorDashboard">
+      <ion-row>
 
-      <ion-col size="12" size-md="6" size-xl="3">
-        <ion-card class="stat-card">
-          <ion-card-content>
-            <ion-icon
-              name="people-outline"
-              color="tertiary">
-            </ion-icon>
-            <p>Total de empleados</p>
-            <h2>{{ totalEmpleados }}</h2>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+        <ion-col size="12" size-md="6" size-xl="3">
+          <ion-card class="stat-card">
+            <ion-card-content>
+              <ion-icon name="car-outline" color="primary"></ion-icon>
+              <p>Total de vehículos</p>
+              <h2>{{ totalVehiculos }}</h2>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
 
-    </ion-row>
-  </ion-grid>
+        <ion-col size="12" size-md="6" size-xl="3">
+          <ion-card class="stat-card">
+            <ion-card-content>
+              <ion-icon name="warning-outline" color="danger"></ion-icon>
+              <p>Vehículos con fallas</p>
+              <h2>{{ vehiculosConFallas }}</h2>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
 
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Estado de la flota</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      Aquí incorporaremos el gráfico de vehículos por estado.
-    </ion-card-content>
-  </ion-card>
+        <ion-col size="12" size-md="6" size-xl="3">
+          <ion-card class="stat-card">
+            <ion-card-content>
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+              <p>Sin vencimientos</p>
+              <h2>{{ vehiculosSinVencimientos }}</h2>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
 
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Últimos reportes</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      Aquí mostraremos los reportes recientes de la flota.
-    </ion-card-content>
-  </ion-card>
+        <ion-col size="12" size-md="6" size-xl="3">
+          <ion-card class="stat-card">
+            <ion-card-content>
+              <ion-icon name="people-outline" color="tertiary"></ion-icon>
+              <p>Total de empleados</p>
+              <h2>{{ totalEmpleados }}</h2>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
 
-</ion-content>
+      </ion-row>
+    </ion-grid>
+
+    <!-- VEHÍCULOS CON FALLAS -->
+    <ion-card *ngIf="!cargando && !errorDashboard">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="warning-outline" color="danger"></ion-icon>
+          Vehículos con elementos vencidos
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+
+        <div *ngIf="vehiculosConFallasLista.length === 0" class="estado-vacio">
+          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+          <p>No hay vehículos con elementos vencidos.</p>
+        </div>
+
+        <div
+          class="vehiculo-falla"
+          *ngFor="let vehiculo of vehiculosConFallasLista">
+
+          <div class="vehiculo-titulo">
+            <h2>{{ vehiculo.patente }}</h2>
+            <span class="badge-danger">Requiere atención</span>
+          </div>
+
+          <p><strong>Marca:</strong> {{ vehiculo.marca }}</p>
+          <p><strong>Modelo:</strong> {{ vehiculo.modelo }}</p>
+
+          <p *ngIf="vehiculo.estadoRevision?.toLowerCase() === 'vencido'">
+            <strong>Revisión técnica:</strong>
+            <span class="texto-vencido">Vencida</span>
+          </p>
+
+          <p *ngIf="vehiculo.estadoExtintor?.toLowerCase() === 'vencido'">
+            <strong>Extintor:</strong>
+            <span class="texto-vencido">Vencido</span>
+          </p>
+
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ÚLTIMOS SERVICIOS -->
+    <ion-card *ngIf="!cargando && !errorDashboard">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="time-outline" color="primary"></ion-icon>
+          Últimos servicios realizados
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+
+        <div *ngIf="ultimosServicios.length === 0" class="estado-vacio">
+          <p>No hay servicios registrados.</p>
+        </div>
+
+        <div class="servicio-card" *ngFor="let servicio of ultimosServicios">
+
+          <div class="servicio-header">
+            <h2>{{ servicio.patente }}</h2>
+
+            <span
+              class="estado-servicio"
+              [style.background]="
+                servicio.estado === 'Finalizado' ? '#dcfce7' :
+                servicio.estado === 'En curso' ? '#dbeafe' :
+                servicio.estado === 'Programado' ? '#fef3c7' :
+                servicio.estado === 'Cancelado' ? '#fee2e2' : '#e5e7eb'
+              "
+              [style.color]="
+                servicio.estado === 'Finalizado' ? '#166534' :
+                servicio.estado === 'En curso' ? '#1e40af' :
+                servicio.estado === 'Programado' ? '#92400e' :
+                servicio.estado === 'Cancelado' ? '#991b1b' : '#374151'
+              ">
+              {{ servicio.estado }}
+            </span>
+          </div>
+
+          <div class="servicio-info">
+            <p>
+              <strong>Conductor:</strong>
+              {{ servicio.nombreConductor }}
+            </p>
+
+            <p>
+              <strong>Origen:</strong>
+              {{ servicio.origen }}
+            </p>
+
+            <p>
+              <strong>Destino:</strong>
+              {{ servicio.destino }}
+            </p>
+
+            <p>
+              <strong>Fecha de salida:</strong>
+              {{ servicio.fechaSalida | date:'dd/MM/yyyy HH:mm' }}
+            </p>
+
+            <p *ngIf="servicio.observaciones">
+              <strong>Observaciones:</strong>
+              {{ servicio.observaciones }}
+            </p>
+          </div>
+
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <div class="actualizar-dashboard">
+      <ion-button
+        expand="block"
+        fill="outline"
+        (click)="cargarDashboard()"
+        [disabled]="cargando">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Actualizar información
+      </ion-button>
+    </div>
+
+  </ion-content>
 </div>
