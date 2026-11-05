@@ -105,15 +105,14 @@ export class HomePage implements OnInit, OnDestroy  {
 
     }
 
+
   async cargarDashboard(mostrarCarga: boolean = true) {
+
     if (this.actualizando) {
       return;
     }
 
     this.actualizando = true;
-    this.ultimaActualizacion = new Date();
-    this.cargando = false;
-    this.actualizando = false;
 
     if (mostrarCarga) {
       this.cargando = true;
@@ -121,27 +120,24 @@ export class HomePage implements OnInit, OnDestroy  {
 
     this.errorDashboard = '';
 
-    this.cargando = true;
-    this.errorDashboard = '';
-
     try {
 
-      // Obtener sesión de Supabase
       const session = await this.authService.getSession();
 
       if (!session) {
         this.errorDashboard = 'No hay una sesión activa.';
         this.cargando = false;
+        this.actualizando = false;
         return;
       }
 
       const token = session.access_token;
 
-      // Consultar información de la API
       forkJoin({
         vehiculos: this.dashboardService.obtenerVehiculos(token),
         empleados: this.dashboardService.obtenerEmpleados(token),
-        servicios: this.dashboardService.obtenerServicios(token)
+        servicios: this.dashboardService.obtenerServicios(token),
+        reportes: this.dashboardService.obtenerReportes(token)
       }).subscribe({
 
         next: (datos) => {
@@ -149,14 +145,21 @@ export class HomePage implements OnInit, OnDestroy  {
           const vehiculos = datos.vehiculos;
           const empleados = datos.empleados;
           const servicios = datos.servicios;
+          const reportes = datos.reportes;
 
-          // Total de vehículos
           this.totalVehiculos = vehiculos.length;
-
-          // Total de empleados
           this.totalEmpleados = empleados.length;
 
-          // Identificar vehículos con revisión o extintor vencido
+          // Obtener los vehículos que tienen reportes pendientes
+          const vehiculosConReportesPendientes = new Set(
+            reportes
+              .filter((reporte: any) =>
+                String(reporte.estado ?? '').trim().toLowerCase() === 'pendiente'
+              )
+              .map((reporte: any) => reporte.idVehiculo)
+          );
+
+          // Identificar vehículos con fallas
           this.vehiculosConFallasLista = vehiculos.filter((vehiculo: any) => {
 
             const revisionVencida =
@@ -165,16 +168,21 @@ export class HomePage implements OnInit, OnDestroy  {
             const extintorVencido =
               String(vehiculo.estadoExtintor ?? '').trim().toLowerCase() === 'vencido';
 
-            return revisionVencida || extintorVencido;
+            const reportePendiente =
+              vehiculosConReportesPendientes.has(vehiculo.idVehiculo);
+
+            return revisionVencida || extintorVencido || reportePendiente;
 
           });
 
-          // Cantidad de vehículos con fallas
+          // Contar vehículos con fallas sin duplicarlos
           this.vehiculosConFallas = this.vehiculosConFallasLista.length;
 
-          // Vehículos sin vencimientos
+          // Vehículos sin fallas
           this.vehiculosOperativos =
             this.totalVehiculos - this.vehiculosConFallas;
+
+          this.vehiculosSinVencimientos = this.vehiculosOperativos;
 
           // Relacionar servicios con vehículos y empleados
           this.ultimosServicios = servicios
@@ -190,32 +198,27 @@ export class HomePage implements OnInit, OnDestroy  {
 
               return {
                 ...servicio,
-
                 patente: vehiculo?.patente ?? 'Vehículo no encontrado',
-
                 nombreConductor: empleado
                   ? `${empleado.nombre} ${empleado.apellido}`
                   : 'Conductor no encontrado'
               };
 
             })
-
-            // Ordenar por fecha más reciente
             .sort((a, b) =>
               new Date(b.fechaSalida).getTime() -
               new Date(a.fechaSalida).getTime()
             )
-
-            // Mostrar los últimos 5 servicios
             .slice(0, 5);
 
+          this.ultimaActualizacion = new Date();
+
           this.cargando = false;
+          this.actualizando = false;
 
         },
 
         error: (error) => {
-          this.cargando = false;
-          this.actualizando = false;
 
           console.error('Error al cargar dashboard:', error);
 
@@ -223,24 +226,25 @@ export class HomePage implements OnInit, OnDestroy  {
             'No fue posible obtener los datos del dashboard.';
 
           this.cargando = false;
+          this.actualizando = false;
 
         }
 
       });
 
     } catch (error) {
-      this.cargando = false;
-      this.actualizando = false;
 
       console.error('Error al obtener sesión:', error);
 
       this.errorDashboard = 'No fue posible verificar la sesión.';
 
       this.cargando = false;
+      this.actualizando = false;
 
     }
 
   }
+
 
   // Cerrar sesión
   async logout() {
