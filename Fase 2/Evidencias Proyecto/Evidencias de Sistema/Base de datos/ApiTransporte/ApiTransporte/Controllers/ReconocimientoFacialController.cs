@@ -51,7 +51,7 @@ namespace ApiTransporte.Controllers
             var savedEmbedding = JsonSerializer.Deserialize<double[]>(biometria.FaceEmbedding);
             double similarity = CalcularSimilitudCoseno(request.CurrentEmbedding, savedEmbedding);
 
-            if (similarity > 0.65)
+            if (similarity > 0.55)
             {
             try
             {
