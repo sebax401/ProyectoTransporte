@@ -23,78 +23,73 @@ namespace ApiTransporte.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginBiometrico([FromBody] BiometricRequest request)
         {
-            try
+        try
+        {
+            var url = _configuration["Supabase:Url"];
+            var key = _configuration["Supabase:ServiceRoleKey"];
+            
+            var options = new Supabase.SupabaseOptions { AutoConnectRealtime = false };
+            var supabase = new Supabase.Client(url, key, options);
+            await supabase.InitializeAsync();
+
+            var perfilesResponse = await supabase.From<Perfil>()
+                                                .Where(x => x.Email == request.Email)
+                                                .Get();
+            
+            var perfil = perfilesResponse.Models.FirstOrDefault();
+            if (perfil == null) 
+                return Unauthorized(new { message = "Usuario no encontrado." });
+
+            var biometriaResponse = await supabase.From<DatosBiometricos>()
+                                                .Where(x => x.UserId == perfil.Id)
+                                                .Get();
+
+            var biometria = biometriaResponse.Models.FirstOrDefault();
+            if (biometria == null || string.IsNullOrEmpty(biometria.FaceEmbedding))
+                return Unauthorized(new { message = "El usuario no tiene un rostro registrado." });
+
+            var savedEmbedding = JsonSerializer.Deserialize<double[]>(biometria.FaceEmbedding);
+            double similarity = CalcularSimilitudCoseno(request.CurrentEmbedding, savedEmbedding);
+
+            if (similarity > 0.65)
             {
-                // 1. Inicializar Supabase con la llave maestra (Service Role Key) para saltar el RLS
-                var url = _configuration["Supabase:Url"];
-                var key = _configuration["Supabase:ServiceRoleKey"];
-                
-                var options = new Supabase.SupabaseOptions { AutoConnectRealtime = false };
-                var supabase = new Supabase.Client(url, key, options);
-                await supabase.InitializeAsync();
+                var secretKey = _configuration["JwtSettings:Secret"] ?? string.Empty;
+                var issuer = _configuration["JwtSettings:Issuer"];
+                var audience = _configuration["JwtSettings:Audience"];
 
-                // 2. Obtener el ID del usuario desde la tabla perfiles usando el correo
-                var perfilesResponse = await supabase.From<Perfil>()
-                                                     .Where(x => x.Email == request.Email)
-                                                     .Get();
-                
-                var perfil = perfilesResponse.Models.FirstOrDefault();
-                if (perfil == null) 
-                    return Unauthorized(new { message = "Usuario no encontrado." });
+                // Corrección aquí: pasamos los bytes de la clave correctamente
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
 
-                // 3. Buscar el vector biométrico guardado para ese usuario
-                var biometriaResponse = await supabase.From<DatosBiometricos>()
-                                                      .Where(x => x.UserId == perfil.Id)
-                                                      .Get();
-
-                var biometria = biometriaResponse.Models.FirstOrDefault();
-                if (biometria == null || string.IsNullOrEmpty(biometria.FaceEmbedding))
-                    return Unauthorized(new { message = "El usuario no tiene un rostro registrado." });
-
-                // 4. Comparar el rostro capturado en Angular con el guardado en Supabase
-                var savedEmbedding = JsonSerializer.Deserialize<double[]>(biometria.FaceEmbedding);
-                double similarity = CalcularSimilitudCoseno(request.CurrentEmbedding, savedEmbedding);
-
-                // Umbral de 0.65 como lo tienes en tu frontend
-                if (similarity > 0.65)
+                var tokenDescriptor = new SecurityTokenDescriptor
                 {
-                    // 5. Fabricar el Token JWT usando la configuración de appsettings.json
-                    var secretKey = _configuration["JwtSettings:Secret"];
-                    var issuer = _configuration["JwtSettings:Issuer"];
-                    var audience = _configuration["JwtSettings:Audience"];
-
-                    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
-                    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
-
-                    var tokenDescriptor = new SecurityTokenDescriptor
+                    Subject = new ClaimsIdentity(new[]
                     {
-                        Subject = new ClaimsIdentity(new[]
-                        {
-                            new Claim(JwtRegisteredClaimNames.Sub, perfil.Id), // El ID del usuario para Supabase
-                            new Claim("aud", audience),                        // Requerido por Supabase (authenticated)
-                            new Claim("role", audience),                       // Requerido por Supabase (authenticated)
-                            new Claim(JwtRegisteredClaimNames.Email, request.Email)
-                        }),
-                        Expires = DateTime.UtcNow.AddHours(8), // Duración de la sesión
-                        SigningCredentials = credentials,
-                        Issuer = issuer,
-                        Audience = audience
-                    };
+                        new Claim(JwtRegisteredClaimNames.Sub, perfil.Id),
+                        new Claim("aud", audience ?? "authenticated"),
+                        new Claim("role", audience ?? "authenticated"),
+                        new Claim(JwtRegisteredClaimNames.Email, request.Email ?? string.Empty)
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(8),
+                    SigningCredentials = credentials,
+                    Issuer = issuer,
+                    Audience = audience
+                };
 
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-                    var jwtString = tokenHandler.WriteToken(token);
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var jwtString = tokenHandler.WriteToken(token);
 
-                    return Ok(new { token = jwtString, message = "Rostro validado exitosamente", similarity = similarity });
-                }
-
-                return Unauthorized(new { message = "El rostro no coincide.", similarity = similarity });
+                return Ok(new { token = jwtString, message = "Rostro validado exitosamente", similarity = similarity });
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
-            }
+
+            return Unauthorized(new { message = "El rostro no coincide.", similarity = similarity });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+        }
+    }
 
         // Función matemática para comparar similitud de vectores (igual a la de Angular)
         private double CalcularSimilitudCoseno(double[] vecA, double[] vecB)
