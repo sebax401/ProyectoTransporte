@@ -87,7 +87,7 @@ namespace ApiTransporte.Controllers
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            return StatusCode(500, new { message = ex.Message, stackTrace = ex.StackTrace });
         }
     }
 
