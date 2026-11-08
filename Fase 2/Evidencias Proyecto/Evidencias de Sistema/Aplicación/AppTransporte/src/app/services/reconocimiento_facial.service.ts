@@ -110,14 +110,13 @@ async captureAndExtractEmbedding(): Promise<number[] | null> {
  
 
 
-  // 3. Procesamiento interno de la imagen para los tensores de ONNX
-private async processImageToEmbedding(imagePath: string): Promise<number[] | null> {
+// 3. Procesamiento interno estable usando w600k_mbf.onnx con recorte normalizado
+  private async processImageToEmbedding(imagePath: string): Promise<number[] | null> {
     try {
       if (!this.recognitionSession) {
         await this.loadModels();
       }
 
-      // Aseguramos a TypeScript que la sesión ya está cargada y no es nula
       const session = this.recognitionSession;
       if (!session) return null;
 
@@ -129,7 +128,13 @@ private async processImageToEmbedding(imagePath: string): Promise<number[] | nul
       const ctx = canvas.getContext('2d');
       if (!ctx) return null;
 
-      ctx.drawImage(img, 0, 0, 112, 112);
+      // Recorte centrado estandarizado (ocupa el 70% central de la imagen de la cámara)
+      const size = Math.floor(Math.min(img.width, img.height) * 0.70);
+      const startX = (img.width - size) / 2;
+      const startY = (img.height - size) / 2.2; // Ligeramente elevado hacia la zona de los ojos
+
+      ctx.drawImage(img, startX, startY, size, size, 0, 0, 112, 112);
+
       const imgData = ctx.getImageData(0, 0, 112, 112);
       const pixels = imgData.data;
 
@@ -150,7 +155,6 @@ private async processImageToEmbedding(imagePath: string): Promise<number[] | nul
 
       const tensor = new ort.Tensor('float32', inputData, [1, 3, 112, 112]);
 
-      // Usamos la constante 'session' que ya validamos
       const inputName = session.inputNames[0];
       const feeds: Record<string, ort.Tensor> = {};
       feeds[inputName] = tensor;
@@ -159,15 +163,13 @@ private async processImageToEmbedding(imagePath: string): Promise<number[] | nul
       const outputName = session.outputNames[0];
       const outputTensor = results[outputName];
 
-      const embedding = Array.from(outputTensor.data as Float32Array);
-      return embedding;
+      return Array.from(outputTensor.data as Float32Array);
 
     } catch (e) {
-      console.error('Error en la inferencia real de los modelos ONNX:', e);
+      console.error('Error en la inferencia de ONNX:', e);
       return null;
     }
   }
-
 
 
   // Función matemática para comparar similitud de vectores faciales
@@ -248,35 +250,43 @@ private loadImage(url: string): Promise<HTMLImageElement> {
       img.src = url;
     });
   }
-  // Método correcto que recibe la imagen capturada del login en vivo
-async authenticateWithFaceAndImage(email: string, imageBase64: string): Promise<boolean> {
-  const currentEmbedding = await this.processImageToEmbedding(imageBase64);
-  if (!currentEmbedding) return false;
+  
+// Método correcto que recibe la imagen capturada del login en vivo
+  async authenticateWithFaceAndImage(email: string, imageBase64: string): Promise<boolean> {
+    const currentEmbedding = await this.processImageToEmbedding(imageBase64);
+    if (!currentEmbedding) return false;
 
-  try {
-    // Construye la ruta completa: https://proyectotransporte.onrender.com/api/ReconocimientoFacial/login
-    const url = `${environment.apiUrl}api/ReconocimientoFacial/login`;
+    try {
+      const url = `${environment.apiUrl}api/ReconocimientoFacial/login`;
 
-    // Envía el correo y el vector al backend en C#
-    const response = await firstValueFrom(
-      this.http.post<any>(url, {
-        email: email,
-        currentEmbedding: currentEmbedding
-      })
-    );
+      // Envía el correo y el vector al backend en C#
+      const response = await firstValueFrom(
+        this.http.post<any>(url, {
+          email: email, 
+          currentEmbedding: currentEmbedding
+        })
+      );
 
-    if (response && response.token) {
-      // Guarda el token válido entregado por tu API de C#
-      localStorage.setItem('supabase_custom_token', response.token);
-      console.log('Similitud calculada en servidor:', response.similarity);
-      return true;
+      if (response && response.token) {
+        // CORRECCIÓN: Usar token_hash en lugar de email y token para enlaces mágicos de Supabase
+        const { data, error } = await this.supabase.auth.verifyOtp({
+          token_hash: response.token,
+          type: 'magiclink'
+        });
+
+        if (error) {
+          console.error('Error al iniciar sesión nativa en Supabase:', error);
+          return false;
+        }
+
+        console.log('Sesión de Supabase iniciada correctamente. Similitud:', response.similarity);
+        return true;
+      }
+      
+      return false;
+    } catch (error: any) {
+      console.error('Error de validación biométrica en el servidor:', error.error?.message || error.message);
+      return false;
     }
-    
-    return false;
-  } catch (error: any) {
-    console.error('Error de validación biométrica en el servidor:', error.error?.message || error.message);
-    return false;
   }
-}
-
 }

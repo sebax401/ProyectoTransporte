@@ -58,7 +58,7 @@ Chart.register(...registerables);
   CommonModule
 ]
 })
-export class HomePage implements OnInit, OnDestroy  {
+export class homePage implements OnInit, OnDestroy  {
 
   private graficoFlota?: Chart;
   private graficoVehiculosFallas?: Chart;

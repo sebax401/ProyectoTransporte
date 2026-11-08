@@ -1,0 +1,16 @@
+<div class="camera-fullscreen-overlay">
+  <!-- Video en vivo cubriendo toda la pantalla -->
+  <video #videoElement autoplay playsinline muted class="camera-video"></video>
+
+  <!-- Máscara oscura y óvalo guía -->
+  <div class="overlay-mask">
+    <div class="face-oval-guide"></div>
+    <p class="guide-instruction">Centra tu rostro dentro del óvalo</p>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="camera-buttons">
+    <ion-button expand="block" color="success" (click)="capturarRostro()">Capturar Rostro</ion-button>
+    <ion-button expand="block" color="danger" fill="outline" (click)="cerrar()">Cancelar</ion-button>
+  </div>
+</div>

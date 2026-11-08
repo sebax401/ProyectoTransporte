@@ -1,0 +1,70 @@
+.camera-fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .camera-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Llena toda la pantalla sin distorsión */
+    z-index: 1;
+  }
+
+  .overlay-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+
+    .face-oval-guide {
+      width: 260px;
+      height: 360px;
+      border: 3px solid #2dd36f;
+      border-radius: 50% / 60%;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7); /* Oscurece todo el entorno */
+    }
+
+    .guide-instruction {
+      margin-top: 30px;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 8px 16px;
+      border-radius: 20px;
+    }
+  }
+
+  .camera-buttons {
+    position: absolute;
+    bottom: 40px;
+    width: 85%;
+    max-width: 320px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    ion-button {
+      --border-radius: 12px;
+      font-weight: 600;
+    }
+  }
+}

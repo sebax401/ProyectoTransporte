@@ -72,11 +72,10 @@ export class LoginPage {
   }
 
   async ngOnInit() {
-    // Cargar los modelos ONNX en segundo plano al abrir el login
     await this.faceService.loadModels();
   }
 
-  // 1. Login tradicional por contraseña
+  //Login  por contraseña
   async onLogin() {
     if (!this.email || !this.password) {
       this.showToast('Por favor, completa todos los campos.');
@@ -162,30 +161,30 @@ export class LoginPage {
     await loading.present();
 
     try {
-      // 1. Obtener el ID del usuario en Supabase a partir de su correo
-      const userId = await this.faceService.getUserIdByEmail(this.email);
+          // 1. Validar que el usuario exista en Supabase antes de procesar el rostro
+          const userId = await this.faceService.getUserIdByEmail(this.email);
 
-      if (!userId) {
-        await loading.dismiss();
-        this.showToast('No se encontró un usuario asociado o no tiene biometría.');
-        return;
-      }
+          if (!userId) {
+            await loading.dismiss();
+            this.showToast('No se encontró un usuario asociado a este correo.');
+            return;
+          }
 
-      // 2. Ejecutar autenticación facial enviando el base64 capturado en vivo
-      const success = await this.faceService.authenticateWithFaceAndImage(userId, imageBase64);
-      await loading.dismiss();
+          // 2. Ejecutar autenticación facial enviando el CORREO y el base64
+          const success = await this.faceService.authenticateWithFaceAndImage(this.email, imageBase64);
+          await loading.dismiss();
 
-      if (success) {
-        this.showToast('¡Rostro reconocido con éxito!');
-        this.router.navigateByUrl('/Home', { replaceUrl: true });
-      } else {
-        this.showToast('El rostro no coincide con nuestros registros.');
-      }
-    } catch (error: any) {
-      await loading.dismiss();
-      console.error(error);
-      this.showToast('Error en el reconocimiento facial.');
-    }
+          if (success) {
+            this.showToast('¡Rostro reconocido con éxito!');
+            this.router.navigateByUrl('/Home', { replaceUrl: true });
+          } else {
+            this.showToast('El rostro no coincide con nuestros registros.');
+          }
+        } catch (error: any) {
+          await loading.dismiss();
+          console.error(error);
+          this.showToast('Error en el reconocimiento facial.');
+        }
   }
 
   private async showToast(message: string) {
