@@ -6,6 +6,7 @@
 
 <ion-content class="ion-padding">
 
+  <!-- ================= VISTA MÓVIL ================= -->
   <div class="ion-hide-md-up mobile-container">
     <h2>Bienvenido</h2>
 
@@ -14,39 +15,28 @@
       <ion-input type="email" [(ngModel)]="email" placeholder="ejemplo@correo.com"></ion-input>
     </ion-item>
 
-<ion-item lines="none">
-  <div style="display: flex; align-items: flex-end; width: 100%; gap: 10px; padding-bottom: 5px;">
-    <div style="flex: 1;">
-      <ion-label position="stacked">Contraseña</ion-label>
-      <ion-input type="password" [(ngModel)]="password" placeholder="******"></ion-input>
-    </div>
+    <ion-item lines="none">
+      <div style="display: flex; align-items: flex-end; width: 100%; gap: 10px; padding-bottom: 5px;">
+        <div style="flex: 1;">
+          <ion-label position="stacked">Contraseña</ion-label>
+          <ion-input type="password" [(ngModel)]="password" placeholder="******"></ion-input>
+        </div>
 
-    
-    <ion-button fill="clear" (click)="iniciarVistaPreviaCamara()" style="--color: #166534; height: 40px; width: 40px; margin-bottom: 2px;">
-      <ion-icon name="camera-outline" slot="icon-only" style="font-size: 28px;"></ion-icon>
-    </ion-button>
-  </div>
-</ion-item>
-
-<!-- Visor de la cámara en vivo con [hidden] -->
-<div [hidden]="!showCamera" class="ion-margin-top" style="position: relative; max-width: 280px; margin: 0 auto; text-align: center;">
-  <video #videoElement autoplay playsinline style="width: 100%; border-radius: 12px; background: #000; transform: scaleX(-1);"></video>
-  <p style="font-size: 12px; color: #666; margin-top: 5px;">Centra tu rostro para iniciar sesión</p>
-  
-  <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
-    <ion-button color="success" size="small" (click)="onLoginWithFace()">Escanear</ion-button>
-    <ion-button color="medium" size="small" fill="outline" (click)="stopCamera()">Cancelar</ion-button>
-  </div>
-</div>
+        <!-- Botón para activar la cámara facial -->
+        <ion-button fill="clear" (click)="iniciarVistaPreviaCamara()"
+          style="--color: #166534; height: 40px; width: 40px; margin-bottom: 2px;">
+          <ion-icon name="camera-outline" slot="icon-only" style="font-size: 28px;"></ion-icon>
+        </ion-button>
+      </div>
+    </ion-item>
 
     <ion-button expand="block" class="ion-margin-top" (click)="onLogin()">
       Ingresar
     </ion-button>
-
-
   </div>
 
 
+  <!-- ================= VISTA ESCRITORIO ================= -->
   <div class="ion-hide-md-down desktop-container">
     <ion-grid class="ion-full-height">
       <ion-row class="ion-justify-content-center ion-align-items-center ion-full-height">
@@ -65,16 +55,24 @@
                 </ion-item>
 
                 <ion-item lines="none" class="custom-input">
-                  <ion-label position="stacked">Contraseña</ion-label>
-                  <ion-input type="password" [(ngModel)]="password" name="password" placeholder="******"></ion-input>
+                  <div style="display: flex; align-items: flex-end; width: 100%; gap: 10px;">
+
+                    <!-- Input de contraseña que sabemos que compila sin errores -->
+                    <div style="flex: 1;">
+                      <ion-label position="stacked">Contraseña</ion-label>
+                      <ion-input type="password" [(ngModel)]="password" name="password"
+                        placeholder="******"></ion-input>
+                    </div>
+
+                    <!-- Botón de la cámara al lado, limpio y sin comentarios internos -->
+                    <ion-button fill="clear" (click)="iniciarVistaPreviaCamara()"
+                      style="--color: #166534; height: 40px; width: 40px; margin-bottom: 2px;">
+                      <ion-icon name="camera-outline" slot="icon-only" style="font-size: 28px;"></ion-icon>
+                    </ion-button>
+
+                  </div>
                 </ion-item>
-
-                <ion-button expand="block" fill="outline" class="ion-margin-top" type="button"
-                  (click)="onLoginWithFace()">
-                  📸 Ingresar con Rostro
-                </ion-button>
-
-
+                
                 <ion-button expand="block" class="submit-btn" type="submit">
                   Ingresar
                 </ion-button>
@@ -86,4 +84,10 @@
       </ion-row>
     </ion-grid>
   </div>
+
 </ion-content>
+
+<!-- ================= COMPONENTE DE CÁMARA PANTALLA COMPLETA ================= -->
+<!-- Se activa al presionar el botón de la cámara y procesa la foto capturada automáticamente -->
+<app-camara-facial *ngIf="showCamera" (onCapture)="procesarFotoCapturada($event)" (onClose)="showCamera = false">
+</app-camara-facial>

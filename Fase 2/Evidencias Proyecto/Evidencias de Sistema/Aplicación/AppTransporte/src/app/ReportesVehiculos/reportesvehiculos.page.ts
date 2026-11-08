@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { DatePipe } from '@angular/common';
-
+import { addIcons } from 'ionicons';
+import { downloadOutline } from 'ionicons/icons';
 import {
   IonContent, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle,
   IonTitle, IonMenuButton, IonButtons, IonToolbar, IonHeader,
@@ -77,7 +78,9 @@ export class reportesvehiculosPage implements OnInit {
     private authService: AuthService,
     private readonly vehiculoService: VehiculoService,
     private readonly reporteService: ReporteService,
-  ) { }
+  ) { addIcons({
+      'download-outline': downloadOutline // 2. Regístralo aquí
+    });}
 
   ngOnInit(): void {
     this.establecerRangoMesActual();
@@ -140,21 +143,24 @@ get reportesFiltrados(): ReporteConVehiculo[] {
   let resultado = [...this.reportes];
 
   // 1. Filtrar por rango de fechas (comparando sólo año, mes y día en YYYY-MM-DD)
-  if (this.fechaDesde) {
-    resultado = resultado.filter(r => {
-      if (!r.fechaGeneracion) return false;
-      const fechaRep = new Date(r.fechaGeneracion).toISOString().split('T')[0];
-      return fechaRep >= this.fechaDesde;
-    });
-  }
+if (this.fechaDesde) {
+  resultado = resultado.filter(r => {
+    if (!r.fechaGeneracion) return false;
+    // Extraemos los primeros 10 caracteres (YYYY-MM-DD) de forma segura sin depender de toISOString()
+    const fechaRep = String(r.fechaGeneracion).substring(0, 10);
+    if (fechaRep.length < 10) return false; 
+    return fechaRep >= this.fechaDesde;
+  });
+}
 
-  if (this.fechaHasta) {
-    resultado = resultado.filter(r => {
-      if (!r.fechaGeneracion) return false;
-      const fechaRep = new Date(r.fechaGeneracion).toISOString().split('T')[0];
-      return fechaRep <= this.fechaHasta;
-    });
-  }
+if (this.fechaHasta) {
+  resultado = resultado.filter(r => {
+    if (!r.fechaGeneracion) return false;
+    const fechaRep = String(r.fechaGeneracion).substring(0, 10);
+    if (fechaRep.length < 10) return false;
+    return fechaRep <= this.fechaHasta;
+  });
+}
 
   // 2. Filtrar por matrícula (patente)
   if (this.textoBusqueda.trim() !== '') {

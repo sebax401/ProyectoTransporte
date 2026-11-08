@@ -1,9 +1,16 @@
-import { Component, ElementRef, OnInit, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, Output, EventEmitter, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IonButton } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-camara-facial',
   templateUrl: './camara-facial.component.html',
   styleUrls: ['./camara-facial.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    IonButton // Esto elimina el error NG8001 de ion-button
+  ]
 })
 export class CamaraFacialComponent implements OnInit, OnDestroy {
   @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
@@ -41,18 +48,36 @@ export class CamaraFacialComponent implements OnInit, OnDestroy {
     }
   }
 
-  capturarRostro() {
+capturarRostro() {
     const video = this.videoElement.nativeElement;
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
+    
+    // 1. Definimos un tamaño de salida estándar y cuadrado (ej. 640x640) para ambos dispositivos
+    const outputSize = 840;
+    canvas.width = outputSize;
+    canvas.height = outputSize;
+    
     const ctx = canvas.getContext('2d');
-
     if (ctx) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const vWidth = video.videoWidth;
+      const vHeight = video.videoHeight;
+
+      // 2. Calculamos el lado menor para hacer un recorte cuadrado perfecto del centro del video
+      // Esto elimina por igual los excesos laterales (en PC) o superiores (en Móvil)
+      const squareSize = Math.min(vWidth, vHeight);
+      
+      const offsetX = (vWidth - squareSize) / 2;
+      const offsetY = (vHeight - squareSize) / 2;
+
+      // 3. Dibujamos el recorte cuadrado exacto escalándolo al canvas de 640x640
+      ctx.drawImage(
+        video, 
+        offsetX, offsetY, squareSize, squareSize, // Coordenadas de recorte del video original
+        0, 0, outputSize, outputSize             // Coordenadas de destino en el canvas cuadrado
+      );
+      
       const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
       
-      // Enviamos la imagen capturada al componente padre
       this.onCapture.emit(dataUrl);
       this.apagarCamara();
     }

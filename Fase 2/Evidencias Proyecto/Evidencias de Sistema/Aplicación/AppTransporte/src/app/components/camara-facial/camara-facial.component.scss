@@ -33,22 +33,36 @@
     align-items: center;
     pointer-events: none;
 
+    // --- VERSIÓN MÓVIL (Por defecto) ---
     .face-oval-guide {
-      width: 260px;
-      height: 360px;
+      width: 75vw;    // Ocupa el 75% del ancho de la pantalla en móvil
+      height: 55vh;   // Ocupa el 55% del alto de la pantalla en móvil
+      max-width: 320px;
+      max-height: 550px;
       border: 3px solid #2dd36f;
       border-radius: 50% / 60%;
-      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7); /* Oscurece todo el entorno */
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7); // Oscurece todo el entorno
+    }
+
+    // --- VERSIÓN ESCRITORIO (Pantallas medianas y grandes a partir de 768px) ---
+    @media (min-width: 768px) {
+      .face-oval-guide {
+        width: 35vw;   // Ocupa un porcentaje menor del ancho en PC para que no sea gigantesco
+        height: 65vh;  // Ocupa el 65% del alto vertical de la pantalla
+        max-width: 500px;
+        max-height: 750px;
+      }
     }
 
     .guide-instruction {
       margin-top: 30px;
-      color: #ffffff;
+      color: #c4b002;
       font-size: 16px;
       font-weight: 600;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgb(250, 250, 250);
       padding: 8px 16px;
       border-radius: 20px;
+      text-align: center;
     }
   }
 

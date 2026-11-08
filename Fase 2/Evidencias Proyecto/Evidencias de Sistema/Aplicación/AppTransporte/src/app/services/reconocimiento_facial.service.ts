@@ -6,18 +6,20 @@ import { environment } from '../../environments/environment';
 import { Platform } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { supabaseInstance } from './auth.service';
 @Injectable({
   providedIn: 'root'
 })
 export class FaceRecognitionService { // <-- Recuerda quitar 'public' aquí
-  private supabase: SupabaseClient;
+  
   private detectionSession: ort.InferenceSession | null = null;
   private recognitionSession: ort.InferenceSession | null = null;
+  private supabase: SupabaseClient = supabaseInstance;
 
   constructor(private platform: Platform, private http: HttpClient) {
     
     // Inicializa Supabase usando tus variables de entorno o credenciales directas
-    this.supabase = createClient(environment.SUPABASE_URL, environment.SUPABASE_PUBLISHABLE_KEY);
+
   }
 
   // 1. Cargar los modelos ONNX al iniciar la app
@@ -31,9 +33,9 @@ export class FaceRecognitionService { // <-- Recuerda quitar 'public' aquí
       this.detectionSession = await ort.InferenceSession.create('assets/Renocimiento_facial/det_500m.onnx');
       this.recognitionSession = await ort.InferenceSession.create('assets/Renocimiento_facial/w600k_mbf.onnx');
       
-      console.log('Modelos ONNX cargados correctamente');
+      
     } catch (e) {
-      console.error('Error cargando los modelos ONNX:', e);
+      console.error('Error cargando los modelos:', e);
     }
   }
 
@@ -60,7 +62,7 @@ async captureAndExtractEmbedding(): Promise<number[] | null> {
 
       if (!imagePath) return null;
 
-      // Procesar con los modelos ONNX (det_500m.onnx y w600k_mbf.onnx)
+      
       const embedding = await this.processImageToEmbedding(imagePath);
       return embedding;
 
@@ -91,7 +93,7 @@ async captureAndExtractEmbedding(): Promise<number[] | null> {
               // Detener la cámara web
               stream.getTracks().forEach(track => track.stop());
               
-              // Convertir a base64 / DataUrl para que ONNX lo pueda leer
+              
               const dataUrl = canvas.toDataURL('image/jpeg');
               resolve(dataUrl);
             } else {
@@ -110,7 +112,7 @@ async captureAndExtractEmbedding(): Promise<number[] | null> {
  
 
 
-// 3. Procesamiento interno estable usando w600k_mbf.onnx con recorte normalizado
+// 3. Procesamiento interno 
   private async processImageToEmbedding(imagePath: string): Promise<number[] | null> {
     try {
       if (!this.recognitionSession) {
@@ -129,10 +131,13 @@ async captureAndExtractEmbedding(): Promise<number[] | null> {
       if (!ctx) return null;
 
       // Recorte centrado estandarizado (ocupa el 70% central de la imagen de la cámara)
-      const size = Math.floor(Math.min(img.width, img.height) * 0.70);
+      const size = Math.floor(Math.min(img.width, img.height) * 0.60); 
+    
+      // Centramos exactamente el área de interés (frente, ojos, nariz, boca)
       const startX = (img.width - size) / 2;
-      const startY = (img.height - size) / 2.2; // Ligeramente elevado hacia la zona de los ojos
+      const startY = (img.height - size) / 2.5; // Ajuste vertical equilibrado para ambos dispositivos
 
+      // Si la imagen viene invertida por la webcam de la PC, puedes normalizarla aquí:
       ctx.drawImage(img, startX, startY, size, size, 0, 0, 112, 112);
 
       const imgData = ctx.getImageData(0, 0, 112, 112);
@@ -166,7 +171,7 @@ async captureAndExtractEmbedding(): Promise<number[] | null> {
       return Array.from(outputTensor.data as Float32Array);
 
     } catch (e) {
-      console.error('Error en la inferencia de ONNX:', e);
+      console.error('Error en la inferencia del modelo:', e);
       return null;
     }
   }
@@ -279,7 +284,6 @@ private loadImage(url: string): Promise<HTMLImageElement> {
           return false;
         }
 
-        console.log('Sesión de Supabase iniciada correctamente. Similitud:', response.similarity);
         return true;
       }
       

@@ -52,32 +52,29 @@
           </ion-card>
 
           <!-- Tarjeta de Biometría (Reconocimiento Facial) -->
-     <!-- Tarjeta de Biometría (Reconocimiento Facial) -->
           <ion-card>
             <ion-card-header>
               <ion-card-title>Reconocimiento Facial</ion-card-title>
             </ion-card-header>
             <ion-card-content class="ion-text-center">
-              <!-- Botón dinámico -->
+              <!-- Botón que activa la cámara a pantalla completa con óvalo guía -->
               <ion-button expand="block" fill="outline" (click)="iniciarVistaPreviaCamara()" style="--border-color: #166534; --color: #166534;">
                 📸 {{ tieneRostro ? 'Actualizar Rostro' : 'Agregar Rostro' }}
               </ion-button>
-
-              <!-- Vista previa de la cámara en vivo usando [hidden] para evitar retrasos de renderizado -->
-              <div [hidden]="!showCamera" class="ion-margin-top" style="position: relative; max-width: 300px; margin: 0 auto;">
-                <video #videoElement autoplay playsinline style="width: 100%; border-radius: 12px; background: #000; transform: scaleX(-1);"></video>
-                <p style="font-size: 12px; color: #666; margin-top: 5px;">Centra tu rostro en la pantalla</p>
-                
-                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
-                  <ion-button color="success" size="small" (click)="captureImageFromStream()">Capturar</ion-button>
-                  <ion-button color="medium" size="small" fill="outline" (click)="stopCamera()">Cancelar</ion-button>
-                </div>
-              </div>
-
             </ion-card-content>
           </ion-card>
+
         </ion-col>
       </ion-row>
     </ion-grid>
   </ion-content>
+
 </div>
+
+<!-- ================= COMPONENTE DE CÁMARA PANTALLA COMPLETA ================= -->
+<!-- Se muestra en el perfil cuando el usuario presiona agregar/actualizar rostro -->
+<app-camara-facial 
+  *ngIf="showCamera"
+  (onCapture)="procesarFotoCapturada($event)"
+  (onClose)="showCamera = false">
+</app-camara-facial>

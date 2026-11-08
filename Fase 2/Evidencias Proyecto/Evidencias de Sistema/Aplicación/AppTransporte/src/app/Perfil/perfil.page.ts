@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -28,6 +28,7 @@ import {
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { FaceRecognitionService } from '../services/reconocimiento_facial.service';
+import { CamaraFacialComponent } from '../components/camara-facial/camara-facial.component'; // Importa el componente de cámara
 
 @Component({
   selector: 'app-perfil',
@@ -54,15 +55,14 @@ import { FaceRecognitionService } from '../services/reconocimiento_facial.servic
     IonLabel,
     IonInput,
     FormsModule,
-    CommonModule
+    CommonModule,
+    CamaraFacialComponent // Registrado aquí para usar <app-camara-facial> en el HTML del perfil
   ]
 })
 export class PerfilPage implements OnInit {
-  @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
-  
+  // Variable de control para mostrar u ocultar la cámara a pantalla completa
   showCamera: boolean = false;
   tieneRostro: boolean = false;
-  private mediaStream: MediaStream | null = null;
 
   userEmail: string = '';
   userId: string = '';
@@ -134,65 +134,34 @@ export class PerfilPage implements OnInit {
     }
   }
 
-  // Iniciar la vista previa de la cámara en vivo (Feedback visual)
-  async iniciarVistaPreviaCamara() {
+  // Activa el componente de la cámara a pantalla completa para registro/actualización facial
+  iniciarVistaPreviaCamara() {
+    if (!this.userId) {
+      this.showToast('No se ha identificado el ID del usuario.', 'danger');
+      return;
+    }
     this.showCamera = true;
-    
-    setTimeout(async () => {
-      try {
-        this.mediaStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { width: 640, height: 480, facingMode: 'user' } 
-        });
-        
-        if (this.videoElement && this.videoElement.nativeElement) {
-          this.videoElement.nativeElement.srcObject = this.mediaStream;
-        }
-      } catch (error) {
-        console.error('No se pudo acceder a la cámara:', error);
-        this.showCamera = false;
-        this.showToast('No se pudo acceder a la cámara web.', 'danger');
-      }
-    }, 300);
   }
 
-  // Capturar imagen desde el elemento video
-  async captureImageFromStream() {
-    if (!this.videoElement) return;
+  // Recibe la foto en base64 enviada por el componente <app-camara-facial> al hacer click en capturar
+  async procesarFotoCapturada(imageBase64: string) {
+    this.showCamera = false; // Cierra la cámara
 
-    const video = this.videoElement.nativeElement;
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg');
-
-      // Apagar la cámara
-      this.stopCamera();
-
-      // Guardar el rostro capturado
-      await this.guardarNuevoRostro(dataUrl);
+    if (!imageBase64) {
+      this.showToast('No se pudo capturar la imagen.', 'danger');
+      return;
     }
+
+    await this.guardarNuevoRostro(imageBase64);
   }
 
-  // Detener el streaming de la cámara
-  stopCamera() {
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => track.stop());
-      this.mediaStream = null;
-    }
-    this.showCamera = false;
-  }
-
-  // Guardar el nuevo rostro procesado
+  // Guardar el nuevo rostro procesado en Supabase
   async guardarNuevoRostro(imageBase64: string) {
     const loading = await this.loadingCtrl.create({ message: 'Procesando biometría y guardando...' });
     await loading.present();
 
     try {
-      // Pasamos el base64 para que use la foto exacta que el usuario vio en pantalla
+      // Pasamos el base64 de la foto exacta tomada dentro del óvalo guía
       const exito = await this.faceService.registrarRostro(this.userId, imageBase64);
       await loading.dismiss();
 

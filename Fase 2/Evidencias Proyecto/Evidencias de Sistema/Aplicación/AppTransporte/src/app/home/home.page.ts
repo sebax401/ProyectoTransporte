@@ -25,7 +25,15 @@ import {
 import { RouterLink, Router } from '@angular/router';
 
 import { forkJoin } from 'rxjs';
-
+import { addIcons } from 'ionicons';
+import { 
+  carOutline, 
+  peopleOutline, 
+  timeOutline, 
+  refreshOutline, 
+  warningOutline, 
+  checkmarkCircleOutline 
+} from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
 import { DashboardService, ServicioViaje } from '../services/dashboard';
 
@@ -87,7 +95,16 @@ export class homePage implements OnInit, OnDestroy  {
     private router: Router,
     private authService: AuthService,
     private dashboardService: DashboardService
-  ) {}
+
+    
+  ) {addIcons({
+      'car-outline': carOutline,
+      'people-outline': peopleOutline,
+      'time-outline': timeOutline,
+      'refresh-outline': refreshOutline,
+      'warning-outline': warningOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline
+    });}
 
     ngOnInit() {
 

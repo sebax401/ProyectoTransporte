@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -23,9 +23,10 @@ import {
   IonIcon
 } from '@ionic/angular/standalone'; 
 import { addIcons } from 'ionicons';
-import { cameraOutline, checkmarkCircleOutline, warningOutline } from 'ionicons/icons';
+import { cameraOutline, checkmarkCircleOutline, warningOutline,refreshOutline} from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
 import { FaceRecognitionService } from '../services/reconocimiento_facial.service';
+import { CamaraFacialComponent } from '../components/camara-facial/camara-facial.component'; // Importación de tu componente de cámara
 
 @Component({
   selector: 'app-login',
@@ -49,17 +50,16 @@ import { FaceRecognitionService } from '../services/reconocimiento_facial.servic
     IonGrid, 
     IonRow, 
     IonCol,
-    IonIcon
+    IonIcon,
+    CamaraFacialComponent // Registrado para usar <app-camara-facial> en el HTML
   ] 
 })
 export class LoginPage {
   email: string = '';
   password: string = '';
 
-  // Variables para la cámara en vivo
+  // Variable de control para mostrar la cámara a pantalla completa
   showCamera: boolean = false;
-  mediaStream: MediaStream | null = null;
-  @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
 
   constructor(
     private authService: AuthService,
@@ -68,14 +68,15 @@ export class LoginPage {
     private loadingCtrl: LoadingController,
     private faceService: FaceRecognitionService,
   ) {
-    addIcons({ cameraOutline, checkmarkCircleOutline, warningOutline });
+    addIcons({ cameraOutline, checkmarkCircleOutline, warningOutline,refreshOutline });
   }
 
   async ngOnInit() {
+    
     await this.faceService.loadModels();
   }
 
-  //Login  por contraseña
+  // 1. Login por contraseña tradicional
   async onLogin() {
     if (!this.email || !this.password) {
       this.showToast('Por favor, completa todos los campos.');
@@ -95,96 +96,53 @@ export class LoginPage {
     }
   }
 
-  // 2. Iniciar la vista previa de la cámara para el reconocimiento facial
-  async iniciarVistaPreviaCamara() {
+  // 2. Valida que el correo exista antes de abrir la cámara de pantalla completa
+  iniciarVistaPreviaCamara() {
     if (!this.email) {
       this.showToast('Por favor, ingresa tu correo primero para identificar tu cuenta.');
       return;
     }
-
+    // Muestra el componente de la cámara a pantalla completa con el óvalo guía
     this.showCamera = true;
-    try {
-      this.mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 640, height: 480, facingMode: 'user' } 
-      });
-      
-      if (this.videoElement && this.videoElement.nativeElement) {
-        this.videoElement.nativeElement.srcObject = this.mediaStream;
-      }
-    } catch (error) {
-      console.error('No se pudo acceder a la cámara:', error);
-      this.showCamera = false;
-      this.showToast('No se pudo acceder a la cámara web. Revisa los permisos.');
-    }
   }
 
-  // 3. Apagar la cámara y limpiar recursos
-  stopCamera() {
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => track.stop());
-      this.mediaStream = null;
-    }
-    this.showCamera = false;
-  }
+  // 3. Recibe la foto en Base64 devuelta por el componente <app-camara-facial>
+  async procesarFotoCapturada(imageBase64: string) {
+    this.showCamera = false; // Cierra la cámara
 
-  // 4. Capturar el fotograma del video en vivo y ejecutar la autenticación biométrica
-  async onLoginWithFace() {
-    if (!this.email) {
-      this.showToast('Por favor, ingresa tu correo primero para identificar tu cuenta.');
+    if (!imageBase64) {
+      this.showToast('No se pudo capturar la imagen.');
       return;
     }
-
-    if (!this.videoElement) {
-      this.showToast('La cámara no está activa.');
-      return;
-    }
-
-    const video = this.videoElement.nativeElement;
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-      this.showToast('Error al inicializar el procesador de imagen.');
-      return;
-    }
-
-    // Dibujar el fotograma actual en el canvas
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageBase64 = canvas.toDataURL('image/jpeg');
-
-    // Apagar la cámara tras capturar
-    this.stopCamera();
 
     const loading = await this.loadingCtrl.create({ message: 'Verificando rostro...' });
     await loading.present();
 
     try {
-          // 1. Validar que el usuario exista en Supabase antes de procesar el rostro
-          const userId = await this.faceService.getUserIdByEmail(this.email);
+      // Validar que el usuario exista en Supabase
+      const userId = await this.faceService.getUserIdByEmail(this.email);
 
-          if (!userId) {
-            await loading.dismiss();
-            this.showToast('No se encontró un usuario asociado a este correo.');
-            return;
-          }
+      if (!userId) {
+        await loading.dismiss();
+        this.showToast('No se encontró un usuario asociado a este correo.');
+        return;
+      }
 
-          // 2. Ejecutar autenticación facial enviando el CORREO y el base64
-          const success = await this.faceService.authenticateWithFaceAndImage(this.email, imageBase64);
-          await loading.dismiss();
+      // Ejecutar autenticación facial enviando el correo y la imagen capturada
+      const success = await this.faceService.authenticateWithFaceAndImage(this.email, imageBase64);
+      await loading.dismiss();
 
-          if (success) {
-            this.showToast('¡Rostro reconocido con éxito!');
-            this.router.navigateByUrl('/Home', { replaceUrl: true });
-          } else {
-            this.showToast('El rostro no coincide con nuestros registros.');
-          }
-        } catch (error: any) {
-          await loading.dismiss();
-          console.error(error);
-          this.showToast('Error en el reconocimiento facial.');
-        }
+      if (success) {
+        this.showToast('¡Rostro reconocido con éxito!');
+        this.router.navigateByUrl('/Home', { replaceUrl: true });
+      } else {
+        this.showToast('El rostro no coincide con nuestros registros.');
+      }
+    } catch (error: any) {
+      await loading.dismiss();
+      console.error(error);
+      this.showToast('Error en el reconocimiento facial.');
+    }
   }
 
   private async showToast(message: string) {

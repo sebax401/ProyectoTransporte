@@ -28,7 +28,7 @@ export class ReporteService {
 
  private apiUrl = `${environment.apiUrl}api/reportes`;
     constructor(private http: HttpClient, private authService: AuthService ) {
-      console.log('API URL usada:', this.apiUrl);
+      
     }
 
     private async getAuthHeaders(): Promise<HttpHeaders> {
