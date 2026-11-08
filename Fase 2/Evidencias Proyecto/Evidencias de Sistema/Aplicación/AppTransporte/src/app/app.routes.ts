@@ -8,7 +8,8 @@ export const routes: Routes = [
   },
   {
     path: 'Home',
-    loadComponent: () => import('./home/home.page').then(m => m.HomePage),
+    loadComponent: () => import('./home/home.page').then(m => m.homePage),
+    canActivate: [authGuard]
   },
   {
     path: 'servicios',
@@ -66,6 +67,11 @@ export const routes: Routes = [
     path: 'DetalleReporte/:id',
     loadComponent: () => import('./ReportesVehiculos/DetalleReporte/detalleReporte.page').then(m => m.DetalleReportePage),
     canActivate: [authGuard]
+  },
+  {
+    path: 'perfil',
+    loadComponent: () => import('./Perfil/perfil.page').then(m => m.PerfilPage),
+    
   },
 
 ];

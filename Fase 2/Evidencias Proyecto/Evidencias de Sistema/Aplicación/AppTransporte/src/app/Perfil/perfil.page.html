@@ -1,0 +1,83 @@
+<div class="ion-page" id="main-content">
+
+  <ion-header>
+    <ion-toolbar style="--background: #166534; --color: #ffffff;">
+      <ion-title slot="start" class="ion-hide-md-down">
+        <a routerLink="/Home" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
+        <a routerLink="/ListarVehiculos" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
+        <a routerLink="/empleados" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
+      </ion-title>
+
+      <div slot="end" class="ion-hide-md-down" style="padding-right: 16px;">
+        <a (click)="logout()" style="color: white; text-decoration: none; font-weight: normal; cursor: pointer;">Cerrar Sesión</a>
+      </div>
+
+      <ion-title class="ion-hide-md-up">Mi Perfil</ion-title>
+
+      <ion-buttons slot="end" class="ion-hide-md-up">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    <ion-grid>
+      <ion-row class="ion-justify-content-center">
+        <ion-col size-md="8" size-lg="6" size-xs="12">
+
+          <h1 class="ion-text-center" style="margin-bottom: 20px; color: #166534;">Información de Cuenta</h1>
+        
+          <ion-card class="ion-margin-bottom">
+            <ion-card-header>
+              <ion-card-title>Datos</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-item lines="none">
+                <ion-label position="stacked">Correo Electrónico</ion-label>
+                <ion-input type="email" [value]="userEmail" readonly style="opacity: 0.8;"></ion-input>
+                <br>
+                <ion-label position="stacked">Nueva Contraseña</ion-label>
+                <ion-input type="password" [(ngModel)]="newPassword" placeholder="Mínimo 6 caracteres"></ion-input>
+              </ion-item>
+
+              <ion-item lines="none" class="ion-margin-top">
+                <ion-label position="stacked">Confirmar Nueva Contraseña</ion-label>
+                <ion-input type="password" [(ngModel)]="confirmPassword" placeholder="Repite la contraseña"></ion-input>
+              </ion-item>
+
+              <ion-button expand="block" class="ion-margin-top" (click)="updatePassword()" style="--background: #166534;">
+                Actualizar Contraseña
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Tarjeta de Biometría (Reconocimiento Facial) -->
+     <!-- Tarjeta de Biometría (Reconocimiento Facial) -->
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Reconocimiento Facial</ion-card-title>
+            </ion-card-header>
+            <ion-card-content class="ion-text-center">
+              <!-- Botón dinámico -->
+              <ion-button expand="block" fill="outline" (click)="iniciarVistaPreviaCamara()" style="--border-color: #166534; --color: #166534;">
+                📸 {{ tieneRostro ? 'Actualizar Rostro' : 'Agregar Rostro' }}
+              </ion-button>
+
+              <!-- Vista previa de la cámara en vivo usando [hidden] para evitar retrasos de renderizado -->
+              <div [hidden]="!showCamera" class="ion-margin-top" style="position: relative; max-width: 300px; margin: 0 auto;">
+                <video #videoElement autoplay playsinline style="width: 100%; border-radius: 12px; background: #000; transform: scaleX(-1);"></video>
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">Centra tu rostro en la pantalla</p>
+                
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                  <ion-button color="success" size="small" (click)="captureImageFromStream()">Capturar</ion-button>
+                  <ion-button color="medium" size="small" fill="outline" (click)="stopCamera()">Cancelar</ion-button>
+                </div>
+              </div>
+
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-content>
+</div>

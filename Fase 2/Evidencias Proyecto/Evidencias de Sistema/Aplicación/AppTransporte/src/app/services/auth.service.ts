@@ -47,4 +47,15 @@ export class AuthService {
     const { data: { user } } = await this.supabase.auth.getUser();
     return user;
     }
+    
+  async updatePassword(newPassword: string) {
+    const { data, error } = await this.supabase.auth.updateUser({
+      password: newPassword
+    });
+
+    if (error) {
+      throw error;
+    }
+    return data;
+  }
 }
