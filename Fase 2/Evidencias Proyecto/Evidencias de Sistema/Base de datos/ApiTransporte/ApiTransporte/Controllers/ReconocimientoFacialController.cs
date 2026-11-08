@@ -53,35 +53,60 @@ namespace ApiTransporte.Controllers
 
             if (similarity > 0.65)
             {
-                var secretKey = _configuration["JwtSettings:Secret"] ?? string.Empty;
-                var issuer = _configuration["JwtSettings:Issuer"];
-                var audience = _configuration["JwtSettings:Audience"];
+            try
+            {
+                // 1. Obtener credenciales desde Render
+                var supabaseUrl = _configuration["Supabase__Url"];
+                var serviceRoleKey = _configuration["Supabase__ServiceRoleKey"];
 
-                // Corrección aquí: pasamos los bytes de la clave correctamente
-                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
-                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+                // 2. Hacer petición HTTP a la API Admin de Supabase para generar el token
+                using var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("apikey", serviceRoleKey);
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {serviceRoleKey}");
 
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim(JwtRegisteredClaimNames.Sub, perfil.Id),
-                        new Claim("aud", audience ?? "authenticated"),
-                        new Claim("role", audience ?? "authenticated"),
-                        new Claim(JwtRegisteredClaimNames.Email, request.Email ?? string.Empty)
-                    }),
-                    Expires = DateTime.UtcNow.AddHours(8),
-                    SigningCredentials = credentials,
-                    Issuer = issuer,
-                    Audience = audience
+                var payload = new 
+                { 
+                    type = "magiclink", 
+                    email = request.Email // Usamos el correo que recibes en el request
                 };
+                
+                var content = new StringContent(
+                    System.Text.Json.JsonSerializer.Serialize(payload), 
+                    System.Text.Encoding.UTF8, 
+                    "application/json"
+                );
 
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                var jwtString = tokenHandler.WriteToken(token);
+                var response = await httpClient.PostAsync($"{supabaseUrl}/auth/v1/admin/generate_link", content);
 
-                return Ok(new { token = jwtString, message = "Rostro validado exitosamente", similarity = similarity });
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    return StatusCode(500, new { message = "Error al generar sesión en Supabase", details = errorBody });
+                }
+
+                // 3. Extraer la URL generada en la respuesta
+                var responseBody = await response.Content.ReadAsStringAsync();
+                using var jsonDoc = System.Text.Json.JsonDocument.Parse(responseBody);
+                var actionLink = jsonDoc.RootElement.GetProperty("action_link").GetString();
+
+                // 4. Extraer el 'token' exacto de la URL (ejemplo: .../verify?token=abc1234&type=magiclink)
+                var uri = new Uri(actionLink);
+                var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+                var tokenDeSupabase = queryParams["token"];
+
+                // 5. Devolver a Angular el token real de Supabase
+                return Ok(new 
+                { 
+                    token = tokenDeSupabase, 
+                    message = "Rostro validado exitosamente", 
+                    similarity = similarity 
+                });
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno procesando sesión", error = ex.Message });
+            }
+        }
 
             return Unauthorized(new { message = "El rostro no coincide.", similarity = similarity });
         }
