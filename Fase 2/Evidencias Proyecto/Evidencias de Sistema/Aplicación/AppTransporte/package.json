@@ -32,6 +32,7 @@
     "@ionic/angular": "^8.0.0",
     "@supabase/server": "^1.9.0",
     "@supabase/supabase-js": "^2.117.2",
+    "chart.js": "^4.6.1",
     "ionicons": "^7.0.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.9",

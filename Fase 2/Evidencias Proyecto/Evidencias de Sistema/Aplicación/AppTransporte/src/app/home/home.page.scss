@@ -130,3 +130,30 @@ ion-card-title {
   color: var(--ion-color-medium);
   margin-top: 5px;
 }
+
+.grafico-card {
+  height: 100%;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  margin: 8px 0;
+}
+
+.grafico-card ion-card-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.contenedor-grafico {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  padding: 10px;
+}
+
+@media (max-width: 576px) {
+
+  .contenedor-grafico {
+    height: 250px;
+  }
+
+}

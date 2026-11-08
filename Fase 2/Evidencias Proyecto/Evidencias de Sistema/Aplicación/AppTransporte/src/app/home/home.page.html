@@ -94,6 +94,74 @@
       </ion-row>
     </ion-grid>
 
+    <!-- GRÁFICOS DEL DASHBOARD -->
+<ion-grid *ngIf="!cargando && !errorDashboard">
+
+  <ion-row>
+
+    <!-- ESTADO DE LA FLOTA -->
+    <ion-col size="12" size-lg="4">
+
+      <ion-card class="grafico-card">
+
+        <ion-card-header>
+          <ion-card-title>
+            Estado de la flota
+          </ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+
+          <div class="contenedor-grafico">
+            <canvas id="graficoFlota"></canvas>
+          </div>
+
+        </ion-card-content>
+
+      </ion-card>
+
+    </ion-col>
+    <ion-col size="12" size-lg="8">
+      <ion-card class="grafico-card">
+        <ion-card-header>
+          <ion-card-title>Vehículos con más fallas</ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="contenedor-grafico">
+            <canvas id="graficoVehiculosFallas"></canvas>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+    
+    <!-- FALLAS POR TIPO -->
+    <ion-col size="12" size-lg="6">
+
+        <ion-card class="grafico-card">
+
+          <ion-card-header>
+            <ion-card-title>
+              Reportes por tipo de falla
+            </ion-card-title>
+          </ion-card-header>
+
+          <ion-card-content>
+
+            <div class="contenedor-grafico">
+              <canvas id="graficoFallas"></canvas>
+            </div>
+
+          </ion-card-content>
+
+        </ion-card>
+
+      </ion-col>
+
+    </ion-row>
+
+  </ion-grid>
+
     <!-- VEHÍCULOS CON FALLAS -->
     <ion-card *ngIf="!cargando && !errorDashboard">
       <ion-card-header>

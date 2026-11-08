@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 
+import { Chart, registerables } from 'chart.js';
+
 import {
   IonContent,
   IonCard,
@@ -26,6 +28,8 @@ import { forkJoin } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
 import { DashboardService, ServicioViaje } from '../services/dashboard';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-home',
@@ -55,6 +59,10 @@ import { DashboardService, ServicioViaje } from '../services/dashboard';
 ]
 })
 export class HomePage implements OnInit, OnDestroy  {
+
+  private graficoFlota?: Chart;
+  private graficoVehiculosFallas?: Chart;
+  private graficoFallas?: Chart;
 
   private intervaloActualizacion: any;
 
@@ -216,6 +224,18 @@ export class HomePage implements OnInit, OnDestroy  {
           this.cargando = false;
           this.actualizando = false;
 
+          // Actualizar gráficos cuando Angular haya renderizado los canvas
+          setTimeout(() => {
+            this.crearGraficoFlota(
+              this.vehiculosOperativos,
+              this.vehiculosConFallas
+            );
+
+            this.crearGraficoVehiculosFallas(reportes, vehiculos);
+
+            this.crearGraficoFallas(reportes);
+          }, 0);
+
         },
 
         error: (error) => {
@@ -245,24 +265,173 @@ export class HomePage implements OnInit, OnDestroy  {
 
   }
 
+  crearGraficoVehiculosFallas(reportes: any[], vehiculos: any[]) {
+  this.graficoVehiculosFallas?.destroy();
+
+  const canvas = document.getElementById('graficoVehiculosFallas') as HTMLCanvasElement;
+  if (!canvas) return;
+
+  const conteo = new Map<number, number>();
+
+  // Contar los reportes asociados a cada vehículo
+  reportes.forEach((reporte: any) => {
+    const idVehiculo = Number(reporte.idVehiculo);
+
+    if (idVehiculo) {
+      conteo.set(idVehiculo, (conteo.get(idVehiculo) || 0) + 1);
+    }
+  });
+
+  // Asociar los reportes con las patentes
+  const datos = vehiculos
+      .map((vehiculo: any) => ({
+        patente: vehiculo.patente,
+        cantidad: conteo.get(Number(vehiculo.idVehiculo)) || 0
+      }))
+      .filter((vehiculo: any) => vehiculo.cantidad > 0)
+      .sort((a, b) => b.cantidad - a.cantidad)
+      .slice(0, 5);
+
+    this.graficoVehiculosFallas = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: datos.map(v => v.patente),
+        datasets: [{
+          label: 'Cantidad de reportes',
+          data: datos.map(v => v.cantidad),
+          backgroundColor: '#e76f51',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
+          }
+        }
+      }
+    });
+  }
+
+  crearGraficoFlota(operativos: number, fallas: number) {
+
+    this.graficoFlota?.destroy();
+
+    const canvas = document.getElementById('graficoFlota') as HTMLCanvasElement;
+
+    if (!canvas) return;
+
+    this.graficoFlota = new Chart(canvas, {
+      type: 'doughnut',
+
+      data: {
+        labels: ['Operativos', 'Con fallas'],
+
+        datasets: [{
+          data: [operativos, fallas],
+          backgroundColor: ['#16a34a', '#dc2626'],
+          borderWidth: 0
+        }]
+      },
+
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  }
+  
+
+  crearGraficoFallas(reportes: any[]) {
+
+  this.graficoFallas?.destroy();
+
+  const canvas = document.getElementById('graficoFallas') as HTMLCanvasElement;
+
+  if (!canvas) return;
+
+  const cantidades: { [tipo: string]: number } = {};
+
+  reportes.forEach(reporte => {
+
+    const tipo =
+      reporte.tipoReporte?.trim() || 'Sin categoría';
+
+    cantidades[tipo] = (cantidades[tipo] || 0) + 1;
+
+  });
+
+  this.graficoFallas = new Chart(canvas, {
+
+      type: 'bar',
+
+      data: {
+        labels: Object.keys(cantidades),
+
+        datasets: [{
+          label: 'Reportes registrados',
+          data: Object.values(cantidades),
+          backgroundColor: '#f59e0b',
+          borderRadius: 6
+        }]
+      },
+
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
+          }
+        }
+      }
+
+    });
+  }
 
   // Cerrar sesión
   async logout() {
 
-    try {
+      try {
 
-      await this.authService.logout();
+        await this.authService.logout();
 
-      this.router.navigateByUrl('/login', {
-        replaceUrl: true
-      });
+        this.router.navigateByUrl('/login', {
+          replaceUrl: true
+        });
 
-    } catch (error) {
+      } catch (error) {
 
-      console.error('Error al cerrar sesión:', error);
+        console.error('Error al cerrar sesión:', error);
+
+      }
 
     }
 
   }
-
-}
