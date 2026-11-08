@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Web;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
@@ -23,102 +24,126 @@ namespace ApiTransporte.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginBiometrico([FromBody] BiometricRequest request)
         {
-        try
-        {
-            var url = _configuration["Supabase:Url"];
-            var key = _configuration["Supabase:ServiceRoleKey"];
-            
-            var options = new Supabase.SupabaseOptions { AutoConnectRealtime = false };
-            var supabase = new Supabase.Client(url, key, options);
-            await supabase.InitializeAsync();
-
-            var perfilesResponse = await supabase.From<Perfil>()
-                                                .Where(x => x.Email == request.Email)
-                                                .Get();
-            
-            var perfil = perfilesResponse.Models.FirstOrDefault();
-            if (perfil == null) 
-                return Unauthorized(new { message = "Usuario no encontrado." });
-
-            var biometriaResponse = await supabase.From<DatosBiometricos>()
-                                                .Where(x => x.UserId == perfil.Id)
-                                                .Get();
-
-            var biometria = biometriaResponse.Models.FirstOrDefault();
-            if (biometria == null || string.IsNullOrEmpty(biometria.FaceEmbedding))
-                return Unauthorized(new { message = "El usuario no tiene un rostro registrado." });
-
-            var savedEmbedding = JsonSerializer.Deserialize<double[]>(biometria.FaceEmbedding);
-            double similarity = CalcularSimilitudCoseno(request.CurrentEmbedding, savedEmbedding);
-
-            if (similarity > 0.55)
-            {
             try
             {
-                // 1. Obtener credenciales desde Render
-                var supabaseUrl = _configuration["Supabase__Url"];
-                var serviceRoleKey = _configuration["Supabase__ServiceRoleKey"];
-
-                // 2. Hacer petición HTTP a la API Admin de Supabase para generar el token
-                using var httpClient = new HttpClient();
-                httpClient.DefaultRequestHeaders.Add("apikey", serviceRoleKey);
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {serviceRoleKey}");
-
-                var payload = new 
-                { 
-                    type = "magiclink", 
-                    email = request.Email // Usamos el correo que recibes en el request
-                };
+                // Soporte seguro para formato plano y anidado de appsettings/Render
+                var url = _configuration["Supabase:Url"] ?? _configuration["Supabase__Url"];
+                var key = _configuration["Supabase:ServiceRoleKey"] ?? _configuration["Supabase__ServiceRoleKey"];
                 
-                var content = new StringContent(
-                    System.Text.Json.JsonSerializer.Serialize(payload), 
-                    System.Text.Encoding.UTF8, 
-                    "application/json"
-                );
-
-                var response = await httpClient.PostAsync($"{supabaseUrl}/auth/v1/admin/generate_link", content);
-
-                if (!response.IsSuccessStatusCode)
+                if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(key))
                 {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-                    return StatusCode(500, new { message = "Error al generar sesión en Supabase", details = errorBody });
+                    return StatusCode(500, new { message = "Faltan las credenciales de Supabase en la configuración del servidor." });
                 }
 
-                // 3. Extraer la URL generada en la respuesta
-                var responseBody = await response.Content.ReadAsStringAsync();
-                using var jsonDoc = System.Text.Json.JsonDocument.Parse(responseBody);
-                var actionLink = jsonDoc.RootElement.GetProperty("action_link").GetString();
+                var options = new Supabase.SupabaseOptions { AutoConnectRealtime = false };
+                var supabase = new Supabase.Client(url, key, options);
+                await supabase.InitializeAsync();
 
-                // 4. Extraer el 'token' exacto de la URL (ejemplo: .../verify?token=abc1234&type=magiclink)
-                var uri = new Uri(actionLink);
-                var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
-                var tokenDeSupabase = queryParams["token"];
+                var perfilesResponse = await supabase.From<Perfil>()
+                                                    .Where(x => x.Email == request.Email)
+                                                    .Get();
+                
+                var perfil = perfilesResponse.Models.FirstOrDefault();
+                if (perfil == null) 
+                    return Unauthorized(new { message = "Usuario no encontrado." });
 
-                // 5. Devolver a Angular el token real de Supabase
-                return Ok(new 
-                { 
-                    token = tokenDeSupabase, 
-                    message = "Rostro validado exitosamente", 
-                    similarity = similarity 
-                });
+                var biometriaResponse = await supabase.From<DatosBiometricos>()
+                                                    .Where(x => x.UserId == perfil.Id)
+                                                    .Get();
+
+                var biometria = biometriaResponse.Models.FirstOrDefault();
+                if (biometria == null || string.IsNullOrEmpty(biometria.FaceEmbedding))
+                    return Unauthorized(new { message = "El usuario no tiene un rostro registrado." });
+
+                var savedEmbedding = JsonSerializer.Deserialize<double[]>(biometria.FaceEmbedding);
+                double similarity = CalcularSimilitudCoseno(request.CurrentEmbedding, savedEmbedding);
+
+                // Umbral optimizado para evitar rechazos por milésimas en variaciones de luz/cámara
+                if (similarity > 0.55)
+                {
+                    try
+                    {
+                        // Hacer petición HTTP a la API Admin de Supabase para generar el token
+                        using var httpClient = new HttpClient();
+                        httpClient.DefaultRequestHeaders.Add("apikey", key);
+                        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
+
+                        var payload = new 
+                        { 
+                            type = "magiclink", 
+                            email = request.Email 
+                        };
+                        
+                        var content = new StringContent(
+                            JsonSerializer.Serialize(payload), 
+                            Encoding.UTF8, 
+                            "application/json"
+                        );
+
+                        var response = await httpClient.PostAsync($"{url}/auth/v1/admin/generate_link", content);
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            var errorBody = await response.Content.ReadAsStringAsync();
+                            return StatusCode(500, new { message = "Error al generar sesión en Supabase", details = errorBody });
+                        }
+
+                        // Extraer la URL generada en la respuesta
+                        var responseBody = await response.Content.ReadAsStringAsync();
+                        using var jsonDoc = JsonDocument.Parse(responseBody);
+                        
+                        var actionLink = string.Empty;
+                        if (jsonDoc.RootElement.TryGetProperty("action_link", out var actionLinkProp))
+                        {
+                            actionLink = actionLinkProp.GetString();
+                        }
+                        else if (jsonDoc.RootElement.TryGetProperty("properties", out var propsProp) && propsProp.TryGetProperty("action_link", out var innerLinkProp))
+                        {
+                            actionLink = innerLinkProp.GetString();
+                        }
+
+                        if (string.IsNullOrEmpty(actionLink))
+                        {
+                            return StatusCode(500, new { message = "No se pudo extraer el enlace de acción de la respuesta de Supabase." });
+                        }
+
+                        // Extraer el 'token' exacto de la URL usando System.Web.HttpUtility
+                        var uri = new Uri(actionLink);
+                        var queryParams = HttpUtility.ParseQueryString(uri.Query);
+                        var tokenDeSupabase = queryParams["token"];
+
+                        if (string.IsNullOrEmpty(tokenDeSupabase))
+                        {
+                            return StatusCode(500, new { message = "El token extraído de Supabase es nulo o vacío." });
+                        }
+
+                        // Devolver a Angular el token real de Supabase
+                        return Ok(new 
+                        { 
+                            token = tokenDeSupabase, 
+                            message = "Rostro validado exitosamente", 
+                            similarity = similarity 
+                        });
+                    }
+                    catch (Exception innerEx)
+                    {
+                        return StatusCode(500, new { message = "Error interno procesando sesión", error = innerEx.Message });
+                    }
+                }
+
+                return Unauthorized(new { message = "El rostro no coincide.", similarity = similarity });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error interno procesando sesión", error = ex.Message });
+                return StatusCode(500, new { message = ex.Message, stackTrace = ex.StackTrace });
             }
         }
 
-            return Unauthorized(new { message = "El rostro no coincide.", similarity = similarity });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = ex.Message, stackTrace = ex.StackTrace });
-        }
-    }
-
-        // Función matemática para comparar similitud de vectores (igual a la de Angular)
+        // Función matemática para comparar similitud de vectores
         private double CalcularSimilitudCoseno(double[] vecA, double[] vecB)
         {
+            if (vecA == null || vecB == null || vecA.Length != vecB.Length) return 0;
+
             double dotProduct = 0, normA = 0, normB = 0;
             for (int i = 0; i < vecA.Length; i++)
             {
@@ -126,6 +151,9 @@ namespace ApiTransporte.Controllers
                 normA += Math.Pow(vecA[i], 2);
                 normB += Math.Pow(vecB[i], 2);
             }
+            
+            if (normA == 0 || normB == 0) return 0;
+
             return dotProduct / (Math.Sqrt(normA) * Math.Sqrt(normB));
         }
     }
@@ -138,7 +166,6 @@ namespace ApiTransporte.Controllers
         public double[] CurrentEmbedding { get; set; }
     }
 
-    // Mapeo a tu tabla public.perfiles
     [Table("perfiles")]
     public class Perfil : BaseModel
     {
@@ -149,7 +176,6 @@ namespace ApiTransporte.Controllers
         public string Email { get; set; }
     }
 
-    // Mapeo a tu tabla public.datos_biometricos
     [Table("datos_biometricos")]
     public class DatosBiometricos : BaseModel
     {
