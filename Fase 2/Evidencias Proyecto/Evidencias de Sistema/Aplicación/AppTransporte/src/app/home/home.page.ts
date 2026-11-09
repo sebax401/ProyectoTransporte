@@ -20,6 +20,9 @@ import {
   IonCol,
   IonButton,
   IonSpinner,
+  IonItem, 
+  IonSelect, 
+  IonSelectOption
 } from '@ionic/angular/standalone';
 
 import { RouterLink, Router } from '@angular/router';
@@ -63,7 +66,10 @@ Chart.register(...registerables);
   IonButton,
   DatePipe,
   IonSpinner,
-  CommonModule
+  CommonModule,
+  IonItem,       // <--- Necesario para que reconozca <ion-item>
+  IonSelect,     // <--- Necesario para <ion-select>
+  IonSelectOption
 ]
 })
 export class homePage implements OnInit, OnDestroy  {
@@ -450,5 +456,6 @@ export class homePage implements OnInit, OnDestroy  {
       }
 
     }
+    
 
   }

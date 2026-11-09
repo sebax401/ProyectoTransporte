@@ -4,13 +4,18 @@
 
   <ion-header>
     <ion-toolbar>
-      <ion-title  class="ion-hide-md-down">
-        <a routerLink="/Home" class="ion-hide-md-down"style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
-        <a routerLink="/ListarVehiculos" class="ion-hide-md-down"style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
-        <a routerLink="/empleados" class="ion-hide-md-down" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
-      </ion-title>
-    <div slot="end" class="ion-hide-md-down" style="padding-right: 16px;">
-        <a (click)="logout()" style="color: white; text-decoration: none; font-weight: normal; cursor: pointer;">Cerrar Sesión</a>
+    <ion-title slot="start" class="ion-hide-md-down" >
+      <a routerLink="/Home" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Inicio</a>
+      <a routerLink="/ListarVehiculos" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Vehículos</a>
+      <a routerLink="/empleados" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Empleados</a>
+      <a routerLink="/servicios" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">Servicios/viajes</a>
+      <a routerLink="/ReportesVehiculos" style="color: white; text-decoration: none; margin-right: 15px; font-weight: normal;">historial Reportes</a>
+
+    </ion-title>
+
+    <div slot="end" class="ion-hide-md-down" style="padding-right: 16px; display: flex; align-items: center; gap: 12px;">
+      <a routerLink="/perfil" style="background-color: #ffc107; color: #000; text-decoration: none; font-weight: bold; padding: 6px 14px; border-radius: 13px; cursor: pointer;">Perfil</a>
+      <a (click)="logout()" style="background-color: #dc3545; color: white; text-decoration: none; font-weight: bold; padding: 6px 14px; border-radius: 13px; cursor: pointer;">Cerrar Sesión</a>
     </div>
 
       <ion-title class="ion-hide-md-up">Vehículos</ion-title>
