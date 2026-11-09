@@ -49,39 +49,29 @@ export class CamaraFacialComponent implements OnInit, OnDestroy {
   }
 
 capturarRostro() {
-    const video = this.videoElement.nativeElement;
-    const canvas = document.createElement('canvas');
-    
-    // 1. Definimos un tamaño de salida estándar y cuadrado (ej. 640x640) para ambos dispositivos
-    const outputSize = 840;
-    canvas.width = outputSize;
-    canvas.height = outputSize;
-    
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      const vWidth = video.videoWidth;
-      const vHeight = video.videoHeight;
+  const video = this.videoElement.nativeElement;
+  const canvas = document.createElement('canvas');
+  
+  // Obtenemos las dimensiones reales completas del video de la cámara
+  const vWidth = video.videoWidth;
+  const vHeight = video.videoHeight;
 
-      // 2. Calculamos el lado menor para hacer un recorte cuadrado perfecto del centro del video
-      // Esto elimina por igual los excesos laterales (en PC) o superiores (en Móvil)
-      const squareSize = Math.min(vWidth, vHeight);
-      
-      const offsetX = (vWidth - squareSize) / 2;
-      const offsetY = (vHeight - squareSize) / 2;
-
-      // 3. Dibujamos el recorte cuadrado exacto escalándolo al canvas de 640x640
-      ctx.drawImage(
-        video, 
-        offsetX, offsetY, squareSize, squareSize, // Coordenadas de recorte del video original
-        0, 0, outputSize, outputSize             // Coordenadas de destino en el canvas cuadrado
-      );
-      
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      
-      this.onCapture.emit(dataUrl);
-      this.apagarCamara();
-    }
+  // Asignamos el tamaño completo del video al canvas (sin recortes ni cuadrados forzados)
+  canvas.width = vWidth;
+  canvas.height = vHeight;
+  
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // Dibujamos el fotograma completo tal cual lo emite la cámara
+    ctx.drawImage(video, 0, 0, vWidth, vHeight);
+    
+    // Generamos la imagen en alta calidad (0.95)
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+    
+    this.onCapture.emit(dataUrl);
+    this.apagarCamara();
   }
+}
 
   cerrar() {
     this.apagarCamara();
