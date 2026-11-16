@@ -291,13 +291,17 @@ export class homePage implements OnInit, OnDestroy  {
   const conteo = new Map<number, number>();
 
   // Contar los reportes asociados a cada vehículo
-  reportes.forEach((reporte: any) => {
-    const idVehiculo = Number(reporte.idVehiculo);
+  reportes
+    .filter((reporte: any) =>
+      String(reporte.estado ?? '').trim().toLowerCase() === 'pendiente'
+    )
+    .forEach((reporte: any) => {
+      const idVehiculo = Number(reporte.idVehiculo);
 
-    if (idVehiculo) {
-      conteo.set(idVehiculo, (conteo.get(idVehiculo) || 0) + 1);
-    }
-  });
+      if (idVehiculo) {
+        conteo.set(idVehiculo, (conteo.get(idVehiculo) || 0) + 1);
+      }
+    });
 
   // Asociar los reportes con las patentes
   const datos = vehiculos

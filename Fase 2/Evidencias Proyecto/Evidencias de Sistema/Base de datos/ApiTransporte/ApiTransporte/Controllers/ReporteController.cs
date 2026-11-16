@@ -40,6 +40,15 @@ namespace ApiTransporte.Controllers
                 reporte.FechaGeneracion = DateTime.UtcNow.ToString("o");
             }
 
+            if (!string.IsNullOrWhiteSpace(reporte.NombreRepuesto))
+            {
+                reporte.Estado = "Solucionada";
+            }
+            else
+            {
+                reporte.Estado = "Pendiente";
+            }
+
             _context.Reporte.Add(reporte);
             await _context.SaveChangesAsync();
 
