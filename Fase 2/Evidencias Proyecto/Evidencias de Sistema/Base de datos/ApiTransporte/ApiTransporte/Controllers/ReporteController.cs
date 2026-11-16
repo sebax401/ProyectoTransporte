@@ -109,5 +109,39 @@ namespace ApiTransporte.Controllers
 
             return Ok(reporte);
         }
+        
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarReporte(int id)
+        {
+            var reporte = await _context.Reporte.FindAsync(id);
+            if (reporte == null)
+            {
+                return NotFound("Reporte no encontrado.");
+            }
+
+            _context.Reporte.Remove(reporte);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Reporte eliminado correctamente." });
+        }
+
+        
+        [HttpDelete("vehiculo/{idVehiculo}")]
+        public async Task<IActionResult> EliminarReportesPorVehiculo(int idVehiculo)
+        {
+            var reportes = await _context.Reporte
+                .Where(r => r.IdVehiculo == idVehiculo)
+                .ToListAsync();
+
+            if (reportes == null || !reportes.Any())
+            {
+                return NotFound("No se encontraron reportes para este vehículo.");
+            }
+
+            _context.Reporte.RemoveRange(reportes);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Se eliminaron todos los reportes del vehículo." });
+        }
     }
 }
