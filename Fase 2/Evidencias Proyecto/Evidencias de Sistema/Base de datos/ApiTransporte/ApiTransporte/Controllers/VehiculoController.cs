@@ -94,13 +94,48 @@ namespace ApiTransporte.Controllers
 
             if (vehiculo == null)
             {
-                return NotFound();
+                return NotFound(new
+                {
+                    mensaje = "Vehículo no encontrado."
+                });
             }
 
-            _context.Vehiculo.Remove(vehiculo);
-            await _context.SaveChangesAsync();
+            // Comprobar si tiene reportes asociados
+            var tieneReportes = await _context.Reporte
+                .AnyAsync(r => r.IdVehiculo == id);
 
-            return NoContent();
+            // Comprobar si tiene servicios asociados
+            var tieneServicios = await _context.ServicioViaje
+                .AnyAsync(s => s.IdVehiculo == id);
+
+            if (tieneReportes || tieneServicios)
+            {
+                return BadRequest(new
+                {
+                    mensaje = "No se puede eliminar este vehículo porque tiene registros asociados.",
+                    tieneReportes,
+                    tieneServicios
+                });
+            }
+
+            try
+            {
+                _context.Vehiculo.Remove(vehiculo);
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    mensaje = "Vehículo eliminado correctamente."
+                });
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "No se pudo eliminar el vehículo debido a una restricción de la base de datos.",
+                    detalle = ex.InnerException?.Message ?? ex.Message
+                });
+            }
         }
 
         [HttpPost("{id}/foto")]
