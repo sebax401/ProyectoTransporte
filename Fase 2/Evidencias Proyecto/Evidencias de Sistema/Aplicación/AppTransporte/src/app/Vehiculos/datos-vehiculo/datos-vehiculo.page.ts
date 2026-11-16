@@ -231,24 +231,29 @@ export class DatosVehiculoPage implements OnInit {
   }
 
   async guardarRepuesto(reporte: Reporte) {
-    const session = await this.authService.getSession();
-    const token = session?.access_token;
 
     const reporteActualizado: Reporte = {
       ...reporte,
       nombreRepuesto: this.repuestoForm.nombreRepuesto,
       valorRepuesto: this.repuestoForm.valorRepuesto,
-      lugarCompra: this.repuestoForm.lugarCompra
+      lugarCompra: this.repuestoForm.lugarCompra,
+      estado: 'Solucionada'
     };
 
-    this.reporteService.actualizarReporte(reporte.idReporte, reporteActualizado).subscribe({
+    this.reporteService.actualizarReporte(
+      reporte.idReporte,
+      reporteActualizado
+    ).subscribe({
       next: () => {
-        alert('Repuesto guardado correctamente');
+        alert('Reporte solucionado y repuesto guardado correctamente');
+
         this.repuestoEditando = null;
+
         this.cargarReportes();
       },
-      error: (error) => {
-        console.error('Error al guardar repuesto', error);
+      error: (error: any) => {
+        console.error('Error al guardar repuesto:', error);
+        alert('No se pudo solucionar el reporte');
       }
     });
   }
