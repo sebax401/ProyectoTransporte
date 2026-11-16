@@ -26,7 +26,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BarralateralComponent } from '../BarraLateral/barralateral.component';
 import { ServicioViaje, ServicioViajeRequest, ServicioViajeService, EstadoServicio } from '../services/servicio-viaje';
 import { Vehiculo, VehiculoService } from '../services/vehiculo';
-import { Empleado, EmpleadoService } from '../services/empleado'
+import { Empleado, EmpleadoService } from '../services/empleado';
+import { AuthService } from '../services/auth.service';
+import { RouterLink, Router } from '@angular/router';
 interface FormularioServicio {
   origen: string;
   destino: string;
@@ -45,6 +47,7 @@ interface FormularioServicio {
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     FormsModule,
     BarralateralComponent,
     IonBadge,
@@ -86,6 +89,8 @@ export class ServiciosViajesPage implements OnInit, OnDestroy {
   private intervaloActualizacion?: ReturnType<typeof setInterval>;
 
   constructor(
+    private router: Router,
+    private authService: AuthService,
     private readonly servicioService: ServicioViajeService,
     private readonly vehiculoService: VehiculoService,
     private readonly EmpleadoService: EmpleadoService
@@ -122,6 +127,15 @@ export class ServiciosViajesPage implements OnInit, OnDestroy {
     const ahora = new Date();
     ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
     return ahora.toISOString().slice(0, 16);
+  }
+
+  async logout() {
+  try {
+      await this.authService.logout();
+      this.router.navigateByUrl('/login', { replaceUrl: true });
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   }
 
   cargarVehiculos(): void {

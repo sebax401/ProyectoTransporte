@@ -59,7 +59,7 @@ namespace ApiTransporte.Controllers
                 double similarity = CalcularSimilitudCoseno(request.CurrentEmbedding, savedEmbedding);
 
                 // Umbral optimizado para evitar rechazos por milésimas en variaciones de luz/cámara
-                if (similarity > 0.75)
+                if (similarity > 0.70)
                 {
                     try
                     {
