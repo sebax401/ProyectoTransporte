@@ -7,15 +7,14 @@ import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
 
 
-export interface Reporte{
-  
+export interface Reporte {
   idReporte: number;
   tipoReporte: string;
-  subTipoReporte:string,
+  subTipoReporte: string;
   fechaGeneracion: string;
   descripcion: string;
   idVehiculo: number;
-
+  estado?: string;
   nombreRepuesto: string;
   valorRepuesto: number | null;
   lugarCompra: string;
@@ -56,9 +55,24 @@ export class ReporteService {
     );
   }
 
-  actualizarReporte(id: number, reporte: Reporte): Observable<void> {
+  actualizarEstadoReporte(id: number, estado: string): Observable<any> {
     return from(this.getAuthHeaders()).pipe(
-      switchMap(headers => this.http.put<void>(`${this.apiUrl}/${id}`, reporte, { headers }))
+      switchMap(headers =>
+        this.http.patch(
+          `${this.apiUrl}/${id}/estado`,
+          JSON.stringify(estado),
+          {
+            headers: headers.set('Content-Type', 'application/json')
+          }
+        )
+      )
+    );
+  }
+  actualizarReporte(id: number, reporte: Reporte): Observable<any> {
+    return from(this.getAuthHeaders()).pipe(
+      switchMap(headers =>
+        this.http.put<any>(`${this.apiUrl}/${id}`, reporte, { headers })
+      )
     );
   }
 }
