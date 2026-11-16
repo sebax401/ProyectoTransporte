@@ -63,10 +63,29 @@ namespace ApiTransporte.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(reporte).State = EntityState.Modified;
+            var reporteExistente = await _context.Reporte.FindAsync(id);
+
+            if (reporteExistente == null)
+            {
+                return NotFound("Reporte no encontrado.");
+            }
+
+            reporteExistente.TipoReporte = reporte.TipoReporte;
+            reporteExistente.SubTipoReporte = reporte.SubTipoReporte;
+            reporteExistente.FechaGeneracion = reporte.FechaGeneracion;
+            reporteExistente.Descripcion = reporte.Descripcion;
+            reporteExistente.NombreRepuesto = reporte.NombreRepuesto;
+            reporteExistente.ValorRepuesto = reporte.ValorRepuesto;
+            reporteExistente.LugarCompra = reporte.LugarCompra;
+
+            if (reporte.Estado == "Solucionada")
+            {
+                reporteExistente.Estado = "Solucionada";
+            }
+
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(reporteExistente);
         }
 
         [HttpPatch("{id}/estado")]
