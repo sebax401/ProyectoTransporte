@@ -105,7 +105,7 @@ namespace ApiTransporte.Controllers
                 .AnyAsync(r => r.IdVehiculo == id);
 
             // Comprobar si tiene servicios asociados
-            var tieneServicios = await _context.ServicioViaje
+            var tieneServicios = await _context.ServiciosViaje
                 .AnyAsync(s => s.IdVehiculo == id);
 
             if (tieneReportes || tieneServicios)
